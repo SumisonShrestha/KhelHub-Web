@@ -4,14 +4,28 @@ import Link from "next/link";
 export default function SplashPage() {
   return (
     <main className="min-h-screen bg-white flex flex-col items-center justify-center">
+      
       <Image
         src="/logo.png"
         alt="KhelHub"
         width={500}
         height={80}
         priority
-        className="mb-20"
+        className="mb-2"
       />
+
+    <p className="text-2xl font-bold text-gray mb-4 text-center">
+  Book Your Game, Own the Moment.
+</p>
+
+      <Image
+        src="/gifyf.gif"
+        alt="Loading animation"
+        width={260}
+        height={120}
+        className="mb-10"
+      />
+
       <Link
         href="/login"
         style={{ fontFamily: "'Arial Black', sans-serif" }}
