@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { api } from "@/lib/api";
+import { handleRegisterUser } from "@/lib/actions/auth-action";
 
 export default function RegisterFormZod() {
   const [showPassword, setShowPassword] = useState(false);
@@ -36,23 +36,12 @@ export default function RegisterFormZod() {
   const onSubmit = async (data: RegisterFormData) => {
     setApiError(null);
     setSuccessMessage(null);
-    try {
-      await api.post("/api/v1/auth/register", {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        username: data.username,
-        email: data.email,
-        password: data.password,
-      });
-
+    const result = await handleRegisterUser(data);
+    if (result.success) {
       setSuccessMessage("Account created! Redirecting to login…");
       setTimeout(() => router.push("/login"), 1500);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Registration failed. Please try again.";
-      setApiError(message);
+    } else {
+      setApiError(result.message);
     }
   };
 

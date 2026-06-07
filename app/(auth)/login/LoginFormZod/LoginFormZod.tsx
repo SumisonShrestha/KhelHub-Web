@@ -8,13 +8,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { api } from "@/lib/api";
-import { authStorage } from "@/lib/auth";
-
-interface LoginResponseData {
-  user: Record<string, unknown>;
-  token: string;
-}
+import { handleLoginUser } from "@/lib/actions/auth-action";
 
 export default function LoginFormZod() {
   const [showPassword, setShowPassword] = useState(false);
@@ -36,23 +30,11 @@ export default function LoginFormZod() {
 
   const onSubmit = async (data: LoginFormData) => {
     setApiError(null);
-    try {
-      const response = await api.post<LoginResponseData>(
-        "/api/v1/auth/login",
-        {
-          email: data.email,
-          password: data.password,
-        }
-      );
-
-      authStorage.setToken(response.data.token);
-      authStorage.setUser(response.data.user);
-
-      router.push("/dashboard"); // ← changed from "/"
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Login failed. Please try again.";
-      setApiError(message);
+    const result = await handleLoginUser(data);
+    if (result.success) {
+      router.push("/dashboard");
+    } else {
+      setApiError(result.message);
     }
   };
 
