@@ -1,26 +1,61 @@
+import axiosInstance from "./axios-instance";
 import { API } from "./endpoints";
-import { LoginFormData, RegisterFormData } from "@/app/(auth)/_components/schema";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8088";
+export const register = async (data: any) => {
+    try {
+        const response = await axiosInstance.post(API.AUTH.REGISTER, data);
+        return response.data;
+    } catch (error: Error | any) {
+        throw new Error(error?.response?.data?.message || "Registration failed");
+    }
+}
 
-export const register = async (data: RegisterFormData) => {
-    const res = await fetch(`${BASE_URL}${API.AUTH.REGISTER}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.message || "Registration failed");
-    return json;
-};
+export const login = async (data: any) => {
+    try {
+        const response = await axiosInstance.post(API.AUTH.LOGIN, data);
+        return response.data;
+    } catch (error: Error | any) {
+        throw new Error(error?.response?.data?.message || "Login failed");
+    }
+}
 
-export const login = async (data: LoginFormData) => {
-    const res = await fetch(`${BASE_URL}${API.AUTH.LOGIN}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.message || "Login failed");
-    return json;
-};
+export const whoami = async (token: string) => {
+    try {
+        const response = await axiosInstance.get(API.AUTH.WHOAMI, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error: Error | any) {
+        throw new Error(error?.response?.data?.message || "Failed to fetch user");
+    }
+}
+
+// Update profile fields + optional profile picture (multipart/form-data)
+export const updateProfile = async (token: string, formData: FormData) => {
+    try {
+        const response = await axiosInstance.put(API.AUTH.UPDATE, formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return response.data;
+    } catch (error: Error | any) {
+        throw new Error(error?.response?.data?.message || "Update failed");
+    }
+}
+
+// Change password — uses its own dedicated endpoint, NOT /update
+export const changePassword = async (
+    token: string,
+    data: { currentPassword: string; newPassword: string }
+) => {
+    try {
+        const response = await axiosInstance.put(API.AUTH.CHANGE_PASSWORD, data, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error: Error | any) {
+        throw new Error(error?.response?.data?.message || "Password change failed");
+    }
+}
