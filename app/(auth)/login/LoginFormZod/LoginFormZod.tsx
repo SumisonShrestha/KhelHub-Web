@@ -32,7 +32,12 @@ export default function LoginFormZod() {
     setApiError(null);
     const result = await handleLoginUser(data);
     if (result.success) {
-      router.push("/dashboard");
+      const role = result.data?.user?.role;
+      if (role === "admin") {
+        router.replace("/admin/users");  // ← replace instead of push
+      } else {
+        router.replace("/dashboard");   // ← replace instead of push
+      }
     } else {
       setApiError(result.message);
     }
@@ -158,7 +163,10 @@ export default function LoginFormZod() {
         <div className="mt-10 text-center">
           <p className="text-gray-600 text-sm">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-gray-900 font-bold hover:underline">
+            <Link
+              href="/register"
+              className="text-gray-900 font-bold hover:underline"
+            >
               Sign Up
             </Link>
           </p>

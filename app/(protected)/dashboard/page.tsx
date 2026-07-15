@@ -1,10 +1,14 @@
 import { getUserData } from "@/lib/cookies";
+import { redirect } from "next/navigation";
 import DashboardClient from "./_components/DashboardClient";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function DashboardPage() {
     const user = await getUserData();
+
+    if (!user) redirect("/login");
+    if (user.role === "admin") redirect("/admin/users");
 
     const name =
         user?.firstName ||
@@ -20,7 +24,7 @@ export default async function DashboardPage() {
 
                 <div className="border-b border-white/10 p-6">
                     <Image
-                        src="/logo.png"
+                        src="/khelhublogo_.png"
                         alt="KhelHub"
                         width={320}
                         height={140}
@@ -138,9 +142,7 @@ export default async function DashboardPage() {
 
                 </div>
 
-            
-
-                {/* ACTION CARDS (ONLY UPDATE PASSWORD) */}
+                {/* ACTION CARDS */}
                 <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
                     <Link
