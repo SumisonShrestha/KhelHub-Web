@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-import { LoginFormData, loginSchema } from "../../_components/schema";
+import { LoginFormData, loginSchema } from "@/app/(auth)/_components/schema";
 import Link from "next/link";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
@@ -34,9 +34,9 @@ export default function LoginFormZod() {
     if (result.success) {
       const role = result.data?.user?.role;
       if (role === "admin") {
-        router.replace("/admin/users");  // ← replace instead of push
+        router.replace("/admin/users");
       } else {
-        router.replace("/dashboard");   // ← replace instead of push
+        router.replace("/dashboard");
       }
     } else {
       setApiError(result.message);

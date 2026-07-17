@@ -11,7 +11,7 @@ export function KhelHubLogo({ size = 28 }: { size?: number }) {
 
 export function AuthLeftPanel() {
   return (
-    <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 flex-col justify-center items-center p-12 text-white">
+    <div className="hidden lg:flex w-1/2 bg-[#121A2A] flex-col justify-center items-center p-12 text-white">
       <div className="text-center">
         <h2 className="text-4xl font-bold mb-4">Welcome to KhelHub</h2>
         <p className="text-xl text-blue-100 mb-8">
