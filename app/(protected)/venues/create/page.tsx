@@ -68,7 +68,6 @@ export default function CreateVenuePage() {
       sport: "Futsal",
       city: form.city,
       location: form.address,
-      image: photos[0] || "",
       pricePerHour: Number(form.standardPrice) || 0,
       amenities: form.facilities,
     });

@@ -11,7 +11,6 @@ export async function handleCreateVenue(data: {
   sport: string;
   city: string;
   location: string;
-  image: string;
   pricePerHour: number;
   amenities: string[];
 }) {
