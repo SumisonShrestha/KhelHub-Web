@@ -1,13 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import SearchBar from "./SearchBar";
 
 export default function Hero() {
   return (
     <section className="max-w-7xl mx-auto px-6 pt-8 pb-20 text-center">
 
-      <div className="inline-flex items-center bg-white/10 px-5 py-2 rounded-full text-gray-200 mb-8">
-        🇳🇵 Nepal's #1 Sports Booking Platform
+      <div className="inline-flex items-center gap-2 bg-white/10 px-5 py-2 rounded-full text-gray-200 mb-8">
+        <Image src="/nepal.png" alt="Nepal" width={20} height={14} className="rounded-sm" />
+        Nepal's #1 Sports Booking Platform
       </div>
 
       <h1 className="text-7xl font-bold text-white leading-tight">
