@@ -45,7 +45,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/90 backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <Image src="/khelhublogo_.png" alt="KhelHub" width={220} height={60} priority className="h-12 w-auto brightness-0 invert" />
+          <Image src="/khelhublogo_.png" alt="KhelHub" width={280} height={76} priority className="h-14 w-auto brightness-0 invert" />
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
