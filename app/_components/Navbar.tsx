@@ -78,7 +78,11 @@ export default function Navbar() {
           {user ? (
             <div className="relative" ref={dropRef}>
               <button onClick={() => setDropOpen(!dropOpen)} className="flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">
-                <User className="h-4 w-4" />
+                {user.profilePicture ? (
+                  <img src={user.profilePicture} alt="" className="h-6 w-6 rounded-full object-cover" />
+                ) : (
+                  <User className="h-4 w-4" />
+                )}
                 {user.firstName || user.username || "Dashboard"}
                 <ChevronDown className={`h-3.5 w-3.5 transition ${dropOpen ? "rotate-180" : ""}`} />
               </button>
