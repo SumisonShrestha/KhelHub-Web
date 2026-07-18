@@ -25,6 +25,7 @@ export const API = {
   TEAMS: {
     ALL: "/api/v1/teams",
     BY_ID: (id: string) => `/api/v1/teams/${id}`,
+    MY_TEAMS: "/api/v1/teams/my-teams",
   },
 
   LEADERBOARD: {

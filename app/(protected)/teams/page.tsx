@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Users, Trophy, X } from "lucide-react";
 import { getTeams, type Team } from "@/lib/api/team";
-import { handleCreateTeam, handleJoinTeam } from "@/lib/actions/team-action";
+import { handleCreateTeam, handleJoinTeam, handleGetMyTeams } from "@/lib/actions/team-action";
 
 export default function TeamsPage() {
   const [teams, setTeams] = useState<Team[]>([]);
@@ -11,7 +11,7 @@ export default function TeamsPage() {
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: "", location: "", level: "Beginner" });
+  const [form, setForm] = useState({ name: "", location: "", level: "Beginner", sport: "Futsal", maxPlayers: 10 });
   const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [joining, setJoining] = useState<Set<string>>(new Set());
@@ -25,6 +25,14 @@ export default function TeamsPage() {
       setLoading(true);
       const data = await getTeams();
       setTeams(data);
+      try {
+        const myTeamsRes = await handleGetMyTeams();
+        if (myTeamsRes.success) {
+          setJoinedTeams(new Set(myTeamsRes.data.map((t: any) => t._id)));
+        }
+      } catch {
+        // not authenticated, that's ok
+      }
     } catch {
       setTeams([]);
     } finally {
@@ -46,7 +54,10 @@ export default function TeamsPage() {
     const result = await handleCreateTeam(form);
     if (result.success) {
       setShowModal(false);
-      setForm({ name: "", location: "", level: "Beginner" });
+      setForm({ name: "", location: "", level: "Beginner", sport: "Futsal", maxPlayers: 10 });
+      if (result.data?._id) {
+        setJoinedTeams((prev) => new Set(prev).add(result.data._id));
+      }
       loadTeams();
     } else {
       setFormError(result.message);
@@ -140,6 +151,22 @@ export default function TeamsPage() {
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700">Sport</label>
+                <select
+                  value={form.sport}
+                  onChange={(e) => setForm({ ...form, sport: e.target.value })}
+                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Futsal">Futsal</option>
+                  <option value="Basketball">Basketball</option>
+                  <option value="Cricket">Cricket</option>
+                  <option value="Football">Football</option>
+                  <option value="Badminton">Badminton</option>
+                  <option value="Tennis">Tennis</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700">Location</label>
                 <input
                   type="text"
@@ -148,6 +175,19 @@ export default function TeamsPage() {
                   placeholder="City or area"
                   className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Players Needed (max 10)</label>
+                <select
+                  value={form.maxPlayers}
+                  onChange={(e) => setForm({ ...form, maxPlayers: Number(e.target.value) })}
+                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {[2,3,4,5,6,7,8,9,10].map((n) => (
+                    <option key={n} value={n}>{n} players</option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -296,12 +336,15 @@ export default function TeamsPage() {
                         {team.name}
                       </h3>
                       <p className="mt-0.5 text-sm text-gray-500">
-                        {team.location || "No location"}
+                        {team.sport}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
+                    <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                      {isNaN(team.maxPlayers - team.members) ? 0 : team.maxPlayers - team.members} remaining
+                    </span>
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-semibold ${
                         team.level === "Advanced"
@@ -319,15 +362,21 @@ export default function TeamsPage() {
                       </button>
                     ) : (
                       <button
-                        onClick={() => openJoinModal(team)}
+                        onClick={() => {
+                          if (joinedTeams.has(team._id)) {
+                            router.push(`/teams/${team._id}`);
+                          } else {
+                            openJoinModal(team);
+                          }
+                        }}
                         disabled={joining.has(team._id)}
                         className={`rounded-lg px-5 py-2 text-sm font-medium shadow transition ${
                           joinedTeams.has(team._id)
-                            ? "border border-green-500 bg-white text-green-600"
+                            ? "border border-green-500 bg-white text-green-600 hover:bg-green-50"
                             : "bg-[#121A2A] text-white hover:scale-105"
                         }`}
                       >
-                        {joining.has(team._id) ? "Joining..." : joinedTeams.has(team._id) ? "View" : "Join Team"}
+                        {joining.has(team._id) ? "Joining..." : joinedTeams.has(team._id) ? "Joined" : "Join Team"}
                       </button>
                     )}
                   </div>

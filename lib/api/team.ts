@@ -3,11 +3,13 @@ import { API } from "./endpoints";
 
 export interface Team {
   _id: string;
+  sport: string;
   name: string;
   location: string;
   level: "Beginner" | "Intermediate" | "Advanced";
   avatar: string;
   members: number;
+  maxPlayers: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -20,4 +22,9 @@ export async function getTeams() {
 export async function getTeamById(id: string) {
   const res = await axiosInstance.get(API.TEAMS.BY_ID(id));
   return res.data.data as Team;
+}
+
+export async function getMyTeams() {
+  const res = await axiosInstance.get(API.TEAMS.MY_TEAMS);
+  return res.data.data as Team[];
 }
