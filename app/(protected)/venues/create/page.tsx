@@ -15,8 +15,9 @@ export default function CreateVenuePage() {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<{ file: File; url: string }[]>([]);
   const [qrPreview, setQrPreview] = useState<string | null>(null);
+  const qrFiles = useRef<File[]>([]);
   const photoRef = useRef<HTMLInputElement>(null);
   const qrRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
@@ -43,9 +44,13 @@ export default function CreateVenuePage() {
     const files = e.target.files;
     if (!files?.length) return;
     if (type === "photo") {
-      const urls = Array.from(files).slice(0, 5 - photos.length).map((f) => URL.createObjectURL(f));
-      setPhotos((prev) => [...prev, ...urls]);
+      const items = Array.from(files).slice(0, 5 - photos.length).map((f) => ({
+        file: f,
+        url: URL.createObjectURL(f),
+      }));
+      setPhotos((prev) => [...prev, ...items]);
     } else {
+      qrFiles.current = [files[0]];
       setQrPreview(URL.createObjectURL(files[0]));
     }
     e.target.value = "";
@@ -62,15 +67,16 @@ export default function CreateVenuePage() {
 
   const handleSubmit = async () => {
     setSubmitting(true);
-    const result = await handleCreateVenue({
-      name: form.name,
-      description: form.description,
-      sport: "Futsal",
-      city: form.city,
-      location: form.address,
-      pricePerHour: Number(form.standardPrice) || 0,
-      amenities: form.facilities,
-    });
+    const fd = new FormData();
+    fd.append("name", form.name);
+    fd.append("description", form.description);
+    fd.append("sport", "Futsal");
+    fd.append("city", form.city);
+    fd.append("location", form.address);
+    fd.append("pricePerHour", form.standardPrice);
+    form.facilities.forEach((f) => fd.append("amenities", f));
+    photos.forEach((p) => fd.append("images", p.file));
+    const result = await handleCreateVenue(fd);
     setSubmitting(false);
     if (result.success) {
       setSuccess(true);
@@ -155,7 +161,7 @@ export default function CreateVenuePage() {
                   <div className="mt-2 flex flex-wrap gap-3">
                     {photos.map((p, i) => (
                       <div key={i} className="relative h-24 w-24 overflow-hidden rounded-xl border">
-                        <img src={p} alt="" className="h-full w-full object-cover" />
+                        <img src={p.url} alt="" className="h-full w-full object-cover" />
                         <button
                           onClick={() => setPhotos((prev) => prev.filter((_, j) => j !== i))}
                           className="absolute right-1 top-1 rounded-full bg-black/60 p-0.5 text-white"

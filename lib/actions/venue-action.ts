@@ -5,23 +5,20 @@ import axios from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export async function handleCreateVenue(data: {
-  name: string;
-  description: string;
-  sport: string;
-  city: string;
-  location: string;
-  pricePerHour: number;
-  amenities: string[];
-}) {
+export async function handleCreateVenue(formData: FormData) {
   try {
     const token = await getTokenCookie();
     if (!token) return { success: false, message: "Not authenticated" };
 
     const res = await axios.post(
       `${BASE_URL}/api/v1/venues`,
-      data,
-      { headers: { Authorization: `Bearer ${token}` } }
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
 
     return { success: true, message: res.data.message, data: res.data.data };
