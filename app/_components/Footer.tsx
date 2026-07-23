@@ -9,7 +9,6 @@ const footerLinks = [
   { label: "Terms", href: "#" },
   { label: "Venues", href: "/venues" },
   { label: "Teams", href: "/teams" },
-  { label: "Leaderboard", href: "/leaderboard" },
 ];
 
 export default function Footer() {

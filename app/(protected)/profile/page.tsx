@@ -3,19 +3,24 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { CalendarDays, Edit3, Users, Settings, LogOut, Star } from "lucide-react";
+import { CalendarDays, Edit3, Users, Settings, LogOut } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { handleGetMyBookings } from "@/lib/actions/booking-action";
 import { handleLogout } from "@/lib/actions/auth-action";
+import { handleGetMyTeams } from "@/lib/actions/team-action";
 
 export default function ProfilePage() {
   const { user, setUser } = useUser();
   const router = useRouter();
   const [bookings, setBookings] = useState<any[]>([]);
+  const [teams, setTeams] = useState<any[]>([]);
 
   useEffect(() => {
     handleGetMyBookings().then((res) => {
       if (res.success) setBookings(res.data);
+    });
+    handleGetMyTeams().then((res) => {
+      if (res.success) setTeams(res.data);
     });
   }, []);
 
@@ -50,13 +55,9 @@ export default function ProfilePage() {
               <h3 className="font-bold text-xl">{bookings.length}</h3>
               <p className="text-xs">BOOKINGS</p>
             </div>
-            <div className="text-center border-x border-white/20 px-8">
-              <h3 className="font-bold text-xl">{bookings.filter((b) => b.status === "completed").length}</h3>
-              <p className="text-xs">COMPLETED</p>
-            </div>
-            <div className="text-center">
-              <Star className="mx-auto fill-yellow-400 text-yellow-400" />
-              <p className="text-xs">PRO</p>
+            <div className="text-center border-l border-white/20 pl-8">
+              <h3 className="font-bold text-xl">{teams.length}</h3>
+              <p className="text-xs">TEAMS</p>
             </div>
           </div>
         </div>
@@ -65,7 +66,7 @@ export default function ProfilePage() {
           <MenuCard icon={<Edit3 size={18} />} title="Edit Profile" color="bg-blue-500" href="/profile/edit" />
           <MenuCard icon={<CalendarDays size={18} />} title="My Bookings" color="bg-green-500" href="/booking" />
           <MenuCard icon={<Users size={18} />} title="My Teams" color="bg-purple-500" href="/my-teams" />
-          <MenuCard icon={<Settings size={18} />} title="Settings" color="bg-orange-500" href="/settings" />
+          <MenuCard icon={<Settings size={18} />} title="Change Password" color="bg-orange-500" href="/profile/change-password" />
         </div>
 
         <button onClick={doLogout} className="mt-5 w-full h-12 rounded-xl bg-white border border-red-300 text-red-500 font-semibold flex items-center justify-center gap-3 hover:bg-red-50">

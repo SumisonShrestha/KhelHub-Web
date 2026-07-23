@@ -35,11 +35,6 @@ export const API = {
     LEAVE: (id: string) => `/api/v1/teams/${id}/leave`,
   },
 
-  LEADERBOARD: {
-    ALL: "/api/v1/leaderboard",
-    BY_ID: (id: string) => `/api/v1/leaderboard/${id}`,
-  },
-
   RATINGS: {
     BY_VENUE: (venueId: string) => `/api/v1/ratings/venue/${venueId}`,
     CREATE: "/api/v1/ratings",

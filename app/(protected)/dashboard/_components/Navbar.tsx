@@ -43,10 +43,6 @@ export default function Navbar() {
             Teams
           </Link>
 
-          <Link href="/leaderboard">
-            Leaderboard
-          </Link>
-
         </div>
       </div>
 

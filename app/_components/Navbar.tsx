@@ -37,7 +37,6 @@ export default function Navbar() {
     { href: "/dashboard", label: "Home" },
     { href: "/venues", label: "Venues" },
     { href: "/teams", label: "Teams" },
-    { href: "/leaderboard", label: "Leaderboard" },
     { href: "/booking", label: "Bookings" },
   ];
 
