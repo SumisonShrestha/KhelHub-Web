@@ -44,4 +44,9 @@ export const API = {
     BY_VENUE: (venueId: string) => `/api/v1/ratings/venue/${venueId}`,
     CREATE: "/api/v1/ratings",
   },
+
+  PAYMENTS: {
+    KHALTI_INITIATE: "/api/v1/payments/khalti/initiate",
+    KHALTI_LOOKUP: "/api/v1/payments/khalti/lookup",
+  },
 };
