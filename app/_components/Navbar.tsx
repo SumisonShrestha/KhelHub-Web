@@ -31,7 +31,7 @@ export default function Navbar() {
     router.push("/");
   };
 
-  if (pathname === "/" || pathname.startsWith("/admin")) return null;
+  if (pathname === "/" || pathname === "/login" || pathname === "/register" || pathname.startsWith("/admin")) return null;
 
   const navLinks = [
     { href: "/dashboard", label: "Home" },

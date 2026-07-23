@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Users, Building2, Trophy, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Users, Building2, Trophy, ShieldCheck, LogOut } from "lucide-react";
 import { getVenues } from "@/lib/api/venue";
 import axiosInstance from "@/lib/api/axios-instance";
+import { handleLogout } from "@/lib/actions/auth-action";
 
 interface Props {
   user: any;
@@ -12,6 +14,8 @@ interface Props {
 }
 
 export default function AdminDashboardClient({ user, token }: Props) {
+  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
   const [stats, setStats] = useState({ users: 0, venues: 0 });
 
   useEffect(() => {
@@ -43,9 +47,23 @@ export default function AdminDashboardClient({ user, token }: Props) {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Welcome, {user.firstName}!</h2>
-          <p className="text-gray-500">Here&apos;s an overview of your platform.</p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Welcome, {user.firstName}!</h2>
+            <p className="text-gray-500">Here&apos;s an overview of your platform.</p>
+          </div>
+          <button
+            onClick={async () => {
+              setLoggingOut(true);
+              await handleLogout();
+              router.replace("/login");
+            }}
+            disabled={loggingOut}
+            className="flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+          >
+            <LogOut size={14} />
+            {loggingOut ? "Logging out…" : "Logout"}
+          </button>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

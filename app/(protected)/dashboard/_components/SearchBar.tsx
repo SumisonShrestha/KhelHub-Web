@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Search,
   MapPin,
@@ -9,14 +8,16 @@ import {
   Clock
 } from "lucide-react";
 
-export default function SearchBar() {
-  const router = useRouter();
-  const [query, setQuery] = useState("");
+interface Props {
+  onSearch: (query: string) => void;
+  initialQuery?: string;
+}
+
+export default function SearchBar({ onSearch, initialQuery = "" }: Props) {
+  const [query, setQuery] = useState(initialQuery);
 
   const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (query.trim()) params.set("search", query.trim());
-    router.push(`/venues?${params.toString()}`);
+    onSearch(query.trim());
   };
 
   return (

@@ -3,7 +3,11 @@
 import Image from "next/image";
 import SearchBar from "./SearchBar";
 
-export default function Hero() {
+interface Props {
+  onSearch: (query: string) => void;
+}
+
+export default function Hero({ onSearch }: Props) {
   return (
     <section className="max-w-7xl mx-auto px-6 pt-8 pb-20 text-center">
 
@@ -28,7 +32,7 @@ export default function Hero() {
         Find and book sport courts, join teams, and compete — all in one place.
       </p>
 
-      <SearchBar />
+      <SearchBar onSearch={onSearch} />
 
     </section>
   );
