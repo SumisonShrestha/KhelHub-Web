@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CalendarDays, Clock, MapPin, Star, ArrowLeft, Check, Calendar, MapPinned, X, Wallet, Banknote, Smartphone, Landmark } from "lucide-react";
+import { CalendarDays, Clock, MapPin, Star, ArrowLeft, Check, Calendar, MapPinned, X, Banknote, Landmark } from "lucide-react";
 import { getVenueById, type Venue } from "@/lib/api/venue";
 import { handleCreateBooking, handleGetMyBookings, handleCancelBooking } from "@/lib/actions/booking-action";
 
@@ -56,8 +56,8 @@ export default function BookingPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "khalti" | null>(null);
+
   const DISCOUNT = 50;
 
   const openConfirmModal = (e: React.FormEvent) => {
@@ -560,45 +560,6 @@ export default function BookingPage() {
                 </div>
               </div>
 
-              <div>
-                <p className="mb-1.5 text-xs font-medium text-gray-700">Payment Method</p>
-                <div className="space-y-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("cash")}
-                    className={`flex w-full items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left transition ${
-                      paymentMethod === "cash" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:border-blue-300"
-                    }`}
-                  >
-                    <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${
-                      paymentMethod === "cash" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"
-                    }`}>
-                      <Banknote className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">Cash After Game</p>
-                      <p className="text-[11px] text-gray-500">Pay in cash after your game</p>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("khalti")}
-                    className={`flex w-full items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left transition ${
-                      paymentMethod === "khalti" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:border-blue-300"
-                    }`}
-                  >
-                    <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${
-                      paymentMethod === "khalti" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"
-                    }`}>
-                      <Landmark className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">Khalti Online</p>
-                      <p className="text-[11px] text-gray-500">Pay using Khalti wallet</p>
-                    </div>
-                  </button>
-                </div>
-              </div>
             </div>
 
             <div className="flex items-center gap-2 border-t border-gray-100 px-4 py-3">
@@ -610,7 +571,7 @@ export default function BookingPage() {
               </button>
               <button
                 onClick={handleConfirm}
-                disabled={submitting || !fullName.trim() || !phone.trim() || !paymentMethod}
+                disabled={submitting || !fullName.trim() || !phone.trim()}
                 className="flex-1 rounded-lg bg-[#121A2A] py-2.5 text-xs font-semibold text-white shadow transition hover:shadow-lg disabled:opacity-50"
               >
                 {submitting ? "Booking..." : `Confirm • Rs ${discountTotal.toLocaleString()}`}
