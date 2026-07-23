@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search,
   MapPin,
@@ -8,6 +10,15 @@ import {
 } from "lucide-react";
 
 export default function SearchBar() {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("search", query.trim());
+    router.push(`/venues?${params.toString()}`);
+  };
+
   return (
     <div className="mt-12">
 
@@ -21,13 +32,16 @@ export default function SearchBar() {
           />
 
           <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
             placeholder="Search by venue or location..."
             className="w-full ml-3 outline-none text-gray-700"
           />
 
         </div>
 
-        <button className="bg-[#121A2A] px-8 rounded-xl text-white">
+        <button onClick={handleSearch} className="bg-[#121A2A] px-8 rounded-xl text-white">
           <Search />
         </button>
 

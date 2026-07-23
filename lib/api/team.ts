@@ -12,6 +12,9 @@ export interface Team {
   maxPlayers: number;
   createdAt: string;
   updatedAt: string;
+  createdBy?: string;
+  memberIds?: string[];
+  phone?: string;
 }
 
 export async function getTeams() {
@@ -27,4 +30,11 @@ export async function getTeamById(id: string) {
 export async function getMyTeams() {
   const res = await axiosInstance.get(API.TEAMS.MY_TEAMS);
   return res.data.data as Team[];
+}
+
+export async function leaveTeam(token: string, teamId: string) {
+  const res = await axiosInstance.post(API.TEAMS.LEAVE(teamId), {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
 }

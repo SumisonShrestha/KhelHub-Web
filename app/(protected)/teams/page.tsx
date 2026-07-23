@@ -1,17 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Plus, Users, Trophy, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Plus, Users, X, Trash2 } from "lucide-react";
 import { getTeams, type Team } from "@/lib/api/team";
-import { handleCreateTeam, handleJoinTeam, handleGetMyTeams } from "@/lib/actions/team-action";
+import { handleCreateTeam, handleJoinTeam, handleGetMyTeams, handleDeleteTeam } from "@/lib/actions/team-action";
+import { useUser } from "@/context/UserContext";
 
 export default function TeamsPage() {
+  const { user } = useUser();
+  const router = useRouter();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: "", location: "", level: "Beginner", sport: "Futsal", maxPlayers: 10 });
+  const [form, setForm] = useState({ name: "", location: "", level: "Beginner", sport: "Futsal", maxPlayers: 10, phone: "" });
   const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [joining, setJoining] = useState<Set<string>>(new Set());
@@ -19,6 +22,7 @@ export default function TeamsPage() {
   const [joinTarget, setJoinTarget] = useState<Team | null>(null);
   const [joinName, setJoinName] = useState("");
   const [joinMsg, setJoinMsg] = useState("");
+  const [cancelling, setCancelling] = useState<Set<string>>(new Set());
 
   const loadTeams = useCallback(async () => {
     try {
@@ -54,7 +58,7 @@ export default function TeamsPage() {
     const result = await handleCreateTeam(form);
     if (result.success) {
       setShowModal(false);
-      setForm({ name: "", location: "", level: "Beginner", sport: "Futsal", maxPlayers: 10 });
+      setForm({ name: "", location: "", level: "Beginner", sport: "Futsal", maxPlayers: 10, phone: "" });
       if (result.data?._id) {
         setJoinedTeams((prev) => new Set(prev).add(result.data._id));
       }
@@ -72,6 +76,14 @@ export default function TeamsPage() {
     setJoinMsg("");
   };
 
+  const handleCancelTeam = async (teamId: string) => {
+    if (!confirm("Are you sure you want to cancel this team?")) return;
+    setCancelling((prev) => new Set(prev).add(teamId));
+    await handleDeleteTeam(teamId);
+    setCancelling((prev) => { const next = new Set(prev); next.delete(teamId); return next; });
+    loadTeams();
+  };
+
   const handleJoinSubmit = async () => {
     if (!joinTarget) return;
     setJoining((prev) => new Set(prev).add(joinTarget._id));
@@ -83,11 +95,9 @@ export default function TeamsPage() {
     setJoinTarget(null);
   };
 
-  const filtered = teams.filter((t) => {
-    const matchesSearch = t.name.toLowerCase().includes(search.toLowerCase());
-    if (activeTab === "all") return matchesSearch;
-    return matchesSearch && !joinedTeams.has(t._id);
-  });
+  const filtered = teams.filter((t) =>
+    t.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -173,6 +183,16 @@ export default function TeamsPage() {
                   value={form.location}
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
                   placeholder="City or area"
+                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  placeholder="e.g. 9841234567"
                   className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -265,30 +285,7 @@ export default function TeamsPage() {
       )}
 
       <div className="mx-auto max-w-5xl px-4 py-8 md:px-6">
-        <div className="mb-6 flex gap-1 rounded-xl border border-gray-200 bg-gray-100 p-1">
-          <button
-            onClick={() => setActiveTab("all")}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all ${
-              activeTab === "all"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            <Users size={16} />
-            All Teams
-          </button>
-          <button
-            onClick={() => setActiveTab("opponents")}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all ${
-              activeTab === "opponents"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            <Trophy size={16} />
-            Find Opponents
-          </button>
-        </div>
+        <h2 className="mb-6 text-xl font-bold text-gray-900">All Teams</h2>
 
         {loading ? (
           <div className="space-y-3">
@@ -338,6 +335,12 @@ export default function TeamsPage() {
                       <p className="mt-0.5 text-sm text-gray-500">
                         {team.sport}
                       </p>
+                      <button
+                        onClick={() => router.push(`/teams/${team._id}`)}
+                        className="mt-1 text-xs font-medium text-blue-600 hover:underline"
+                      >
+                        Details →
+                      </button>
                     </div>
                   </div>
 
@@ -356,29 +359,31 @@ export default function TeamsPage() {
                     >
                       {team.level}
                     </span>
-                    {activeTab === "opponents" ? (
-                      <button className="rounded-lg border border-blue-600 bg-white px-5 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-50">
-                        Challenge
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          if (joinedTeams.has(team._id)) {
-                            router.push(`/teams/${team._id}`);
-                          } else {
-                            openJoinModal(team);
-                          }
-                        }}
-                        disabled={joining.has(team._id)}
-                        className={`rounded-lg px-5 py-2 text-sm font-medium shadow transition ${
-                          joinedTeams.has(team._id)
-                            ? "border border-green-500 bg-white text-green-600 hover:bg-green-50"
-                            : "bg-[#121A2A] text-white hover:scale-105"
-                        }`}
-                      >
-                        {joining.has(team._id) ? "Joining..." : joinedTeams.has(team._id) ? "Joined" : "Join Team"}
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                        {team.createdBy === (user as any)?._id && (
+                          <button
+                            onClick={() => handleCancelTeam(team._id)}
+                            disabled={cancelling.has(team._id)}
+                            className="flex items-center gap-1 rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            {cancelling.has(team._id) ? "Cancelling..." : "Cancel"}
+                          </button>
+                        )}
+                        {joinedTeams.has(team._id) ? (
+                          <span className="rounded-lg border border-green-500 bg-white px-5 py-2 text-sm font-medium text-green-600">
+                            Joined
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => openJoinModal(team)}
+                            disabled={joining.has(team._id)}
+                            className="rounded-lg bg-[#121A2A] px-5 py-2 text-sm font-medium text-white shadow transition hover:scale-105"
+                          >
+                            {joining.has(team._id) ? "Joining..." : "Join Team"}
+                          </button>
+                        )}
+                      </div>
                   </div>
                 </div>
               );

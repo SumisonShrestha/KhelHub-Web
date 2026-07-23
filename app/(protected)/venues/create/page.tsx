@@ -2,8 +2,11 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, X, Check } from "lucide-react";
-import { handleCreateVenue } from "@/lib/actions/venue-action";
+import { Upload, X, Check, AlertCircle } from "lucide-react";
+import { getToken } from "@/lib/actions/auth-action";
+import { createVenue } from "@/lib/api/venue";
+
+const CATEGORIES = ["Futsal", "Basketball", "Cricket", "Football", "Badminton", "Tennis", "Volleyball", "Swimming", "Boxing", "Other"];
 
 const FACILITIES = [
   "Parking Available", "Showers", "Changing Rooms", "Floodlights",
@@ -15,20 +18,19 @@ export default function CreateVenuePage() {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
   const [photos, setPhotos] = useState<{ file: File; url: string }[]>([]);
-  const [qrPreview, setQrPreview] = useState<string | null>(null);
-  const qrFiles = useRef<File[]>([]);
   const photoRef = useRef<HTMLInputElement>(null);
-  const qrRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     name: "",
+    category: "Futsal",
     ownerName: "",
     description: "",
     address: "",
     googleMapsLink: "",
     phone: "",
     email: "",
-    city: "",
+    city: "Kathmandu",
     standardPrice: "",
     weekendPrice: "",
     nightPrice: "",
@@ -40,19 +42,14 @@ export default function CreateVenuePage() {
 
   const update = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: "photo" | "qr") => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
-    if (type === "photo") {
-      const items = Array.from(files).slice(0, 5 - photos.length).map((f) => ({
-        file: f,
-        url: URL.createObjectURL(f),
-      }));
-      setPhotos((prev) => [...prev, ...items]);
-    } else {
-      qrFiles.current = [files[0]];
-      setQrPreview(URL.createObjectURL(files[0]));
-    }
+    const items = Array.from(files).slice(0, 5 - photos.length).map((f) => ({
+      file: f,
+      url: URL.createObjectURL(f),
+    }));
+    setPhotos((prev) => [...prev, ...items]);
     e.target.value = "";
   };
 
@@ -67,19 +64,39 @@ export default function CreateVenuePage() {
 
   const handleSubmit = async () => {
     setSubmitting(true);
-    const fd = new FormData();
-    fd.append("name", form.name);
-    fd.append("description", form.description);
-    fd.append("sport", "Futsal");
-    fd.append("city", form.city);
-    fd.append("location", form.address);
-    fd.append("pricePerHour", form.standardPrice);
-    form.facilities.forEach((f) => fd.append("amenities", f));
-    photos.forEach((p) => fd.append("images", p.file));
-    const result = await handleCreateVenue(fd);
-    setSubmitting(false);
-    if (result.success) {
-      setSuccess(true);
+    setError("");
+    try {
+      const token = await getToken();
+      if (!token) { setError("Not authenticated"); setSubmitting(false); return; }
+      const fd = new FormData();
+      fd.append("name", form.name);
+      fd.append("description", form.description);
+      fd.append("category", form.category);
+      fd.append("sport", form.category);
+      fd.append("city", form.city);
+      fd.append("location", form.address);
+      fd.append("pricePerHour", form.standardPrice);
+      fd.append("ownerName", form.ownerName);
+      fd.append("phone", form.phone);
+      fd.append("email", form.email);
+      fd.append("googleMapsLink", form.googleMapsLink);
+      if (form.weekendPrice) fd.append("weekendPrice", form.weekendPrice);
+      if (form.nightPrice) fd.append("nightPrice", form.nightPrice);
+      if (form.discount) fd.append("discount", form.discount);
+      fd.append("openingTime", form.openingTime);
+      fd.append("closingTime", form.closingTime);
+      form.facilities.forEach((f) => fd.append("amenities", f));
+      photos.forEach((p) => fd.append("images", p.file));
+      const result = await createVenue(token, fd);
+      if (result.success) {
+        setSuccess(true);
+      } else {
+        setError(result.message || "Failed to create venue");
+      }
+    } catch (err: any) {
+      setError(err?.response?.data?.message || err?.message || "Failed to create venue");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -135,6 +152,19 @@ export default function CreateVenuePage() {
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium text-gray-700">Category</label>
+                  <select
+                    value={form.category}
+                    onChange={(e) => update("category", e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {CATEGORIES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-gray-700">Owner/Manager Name</label>
                   <input
                     type="text"
@@ -173,7 +203,7 @@ export default function CreateVenuePage() {
                     {photos.length < 5 && (
                       <label className="flex h-24 w-24 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 text-gray-400 hover:border-blue-500 hover:text-blue-500">
                         <Upload className="h-6 w-6" />
-                        <input ref={photoRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleFileSelect(e, "photo")} />
+                        <input ref={photoRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
                       </label>
                     )}
                   </div>
@@ -213,6 +243,19 @@ export default function CreateVenuePage() {
               <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div>
+                  <label className="block text-sm font-medium text-gray-700">City</label>
+                  <select
+                    value={form.city}
+                    onChange={(e) => update("city", e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="Kathmandu">Kathmandu</option>
+                    <option value="Lalitpur">Lalitpur</option>
+                    <option value="Bhaktapur">Bhaktapur</option>
+                    <option value="Pokhara">Pokhara</option>
+                  </select>
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700">Phone Number</label>
                   <input
                     type="tel"
@@ -229,16 +272,6 @@ export default function CreateVenuePage() {
                     value={form.email}
                     onChange={(e) => update("email", e.target.value)}
                     placeholder="e.g. venue@example.com"
-                    className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">City</label>
-                  <input
-                    type="text"
-                    value={form.city}
-                    onChange={(e) => update("city", e.target.value)}
-                    placeholder="e.g. Kathmandu"
                     className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -261,32 +294,7 @@ export default function CreateVenuePage() {
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Weekend Price (optional)</label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">रू</span>
-                    <input
-                      type="number"
-                      value={form.weekendPrice}
-                      onChange={(e) => update("weekendPrice", e.target.value)}
-                      placeholder="e.g. 2000"
-                      className="w-full rounded-xl border border-gray-300 px-8 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Night Price (optional)</label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">रू</span>
-                    <input
-                      type="number"
-                      value={form.nightPrice}
-                      onChange={(e) => update("nightPrice", e.target.value)}
-                      placeholder="e.g. 1800"
-                      className="w-full rounded-xl border border-gray-300 px-8 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
+
               </div>
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700">Offer a discount or promotion</label>
@@ -351,28 +359,12 @@ export default function CreateVenuePage() {
               </div>
             </div>
 
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Payment QR Code</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Upload your payment QR code (eSewa, Khalti, bank, etc.) so teams can pay for match bookings directly to your account.
-              </p>
-              {qrPreview ? (
-                <div className="relative mt-4 inline-block">
-                  <img src={qrPreview} alt="QR Code" className="h-32 w-32 rounded-xl border object-cover" />
-                  <button onClick={() => setQrPreview(null)} className="absolute -right-2 -top-2 rounded-full bg-red-500 p-0.5 text-white">
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <label className="mt-4 flex h-32 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-gray-300 text-gray-400 hover:border-blue-500 hover:text-blue-500">
-                  <div className="text-center">
-                    <Upload className="mx-auto h-8 w-8" />
-                    <p className="mt-2 text-sm font-medium">Upload Payment QR Code</p>
-                  </div>
-                  <input ref={qrRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFileSelect(e, "qr")} />
-                </label>
-              )}
-            </div>
+            {error && (
+              <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
 
             <button
               onClick={handleSubmit}

@@ -5,7 +5,7 @@ import axios from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export async function handleCreateTeam(data: { name: string; sport?: string; location?: string; level?: string; maxPlayers?: number }) {
+export async function handleCreateTeam(data: { name: string; sport?: string; location?: string; level?: string; maxPlayers?: number; phone?: string }) {
   try {
     const token = await getTokenCookie();
     if (!token) return { success: false, message: "Not authenticated" };
@@ -41,6 +41,25 @@ export async function handleJoinTeam(teamId: string) {
     return {
       success: false,
       message: error?.response?.data?.message || "Failed to join team",
+    };
+  }
+}
+
+export async function handleDeleteTeam(teamId: string) {
+  try {
+    const token = await getTokenCookie();
+    if (!token) return { success: false, message: "Not authenticated" };
+
+    const res = await axios.delete(
+      `${BASE_URL}/api/v1/teams/${teamId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return { success: true, message: res.data.message };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error?.response?.data?.message || "Failed to cancel team",
     };
   }
 }

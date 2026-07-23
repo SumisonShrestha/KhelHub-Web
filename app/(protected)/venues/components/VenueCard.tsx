@@ -8,11 +8,12 @@ interface Props {
   venue: Venue;
   onSelect: (venue: Venue) => void;
   isSelected: boolean;
+  onRateClick?: (venue: Venue) => void;
 }
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=800";
 
-export default function VenueCard({ venue, onSelect, isSelected }: Props) {
+export default function VenueCard({ venue, onSelect, isSelected, onRateClick }: Props) {
   const availability = Math.min(Math.round((venue.rating / 5) * 90 + 10), 100);
 
   return (
@@ -69,18 +70,35 @@ export default function VenueCard({ venue, onSelect, isSelected }: Props) {
 
         <div className="mt-4 flex items-center justify-between">
           <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-            {venue.sport}
+            {venue.category || venue.sport}
           </span>
           {isSelected ? (
             <span className="text-sm font-semibold text-blue-600">Selected</span>
           ) : (
-            <Link
-              href={`/booking?venueId=${venue._id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="rounded-xl bg-[#121A2A] px-4 py-2 text-sm font-semibold text-white shadow transition hover:shadow-lg"
-            >
-              Book Now
-            </Link>
+            <div className="flex gap-2">
+              {onRateClick && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onRateClick(venue); }}
+                  className="rounded-xl border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-100"
+                >
+                  Rate
+                </button>
+              )}
+              <Link
+                href={`/venues/${venue._id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="rounded-xl border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-100"
+              >
+                Details
+              </Link>
+              <Link
+                href={`/booking?venueId=${venue._id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="rounded-xl bg-[#121A2A] px-4 py-2 text-sm font-semibold text-white shadow transition hover:shadow-lg"
+              >
+                Book Now
+              </Link>
+            </div>
           )}
         </div>
       </div>

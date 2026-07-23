@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Users, Trophy, MapPin } from "lucide-react";
+import { ArrowLeft, Users, Trophy, MapPin, Phone } from "lucide-react";
 import { getTeamById, type Team } from "@/lib/api/team";
 
 export default function TeamDetailPage() {
@@ -84,6 +84,13 @@ export default function TeamDetailPage() {
               <p className="text-sm text-gray-500">Remaining</p>
             </div>
           </div>
+
+          {team.phone && (
+            <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-600">
+              <Phone className="h-4 w-4" />
+              {team.phone}
+            </div>
+          )}
         </div>
       </div>
     </div>

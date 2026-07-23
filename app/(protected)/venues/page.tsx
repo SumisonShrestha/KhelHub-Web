@@ -1,24 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Hero from "./components/Hero";
 import FilterChips from "./components/FilterChips";
 import FilterBar from "./components/FilterBar";
 import VenueGrid from "./components/VenueGrid";
 import { getVenues, type Venue } from "@/lib/api/venue";
 import { useSelectedVenue } from "@/context/SelectedVenueContext";
+import RateVenueModal from "./components/RateVenueModal";
 
-export default function VenuesPage() {
+function VenuesContent() {
+  const searchParams = useSearchParams();
   const [venues, setVenues] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(true);
   const { selectedVenue, selectVenue } = useSelectedVenue();
   const gridRef = useRef<HTMLDivElement>(null);
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(searchParams.get("search") || "");
   const [city, setCity] = useState("All Cities");
   const [sport, setSport] = useState("All Sports");
   const [sort, setSort] = useState("rating");
   const [chip, setChip] = useState("all");
+
+  const [rateVenue, setRateVenue] = useState<Venue | null>(null);
 
   const loadVenues = useCallback(async () => {
     try {
@@ -47,6 +52,15 @@ export default function VenuesPage() {
     return () => clearTimeout(timer);
   }, [query, city, sport, sort, chip]);
 
+  useEffect(() => {
+    if (rateVenue) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [rateVenue]);
+
   const avgRating = useMemo(() => {
     if (venues.length === 0) return "0.0";
     const sum = venues.reduce((acc, v) => acc + v.rating, 0);
@@ -71,6 +85,11 @@ export default function VenuesPage() {
     setSport("All Sports");
     setSort("rating");
     setChip("all");
+  };
+
+  const handleRateSuccess = () => {
+    setRateVenue(null);
+    loadVenues();
   };
 
   return (
@@ -120,9 +139,26 @@ export default function VenuesPage() {
             venues={venues}
             onSelect={handleSelect}
             selectedId={selectedVenue?._id || null}
+            onRateClick={setRateVenue}
           />
         )}
       </div>
+
+      {rateVenue && (
+        <RateVenueModal
+          venue={rateVenue}
+          onClose={() => setRateVenue(null)}
+          onSuccess={handleRateSuccess}
+        />
+      )}
     </div>
+  );
+}
+
+export default function VenuesPage() {
+  return (
+    <Suspense fallback={null}>
+      <VenuesContent />
+    </Suspense>
   );
 }

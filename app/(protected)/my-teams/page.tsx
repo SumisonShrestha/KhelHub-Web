@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Trophy, Home } from "lucide-react";
+import { Users, Trophy, Home, LogOut } from "lucide-react";
 import Link from "next/link";
 import { handleGetMyTeams } from "@/lib/actions/team-action";
+import { getToken } from "@/lib/actions/auth-action";
+import { leaveTeam } from "@/lib/api/team";
 import type { Team } from "@/lib/api/team";
 
 export default function MyTeamsPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+  const [leaveTarget, setLeaveTarget] = useState<Team | null>(null);
+  const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -95,23 +99,69 @@ export default function MyTeamsPage() {
                       </p>
                     </div>
                   </div>
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      team.level === "Advanced"
-                        ? "bg-red-100 text-red-700"
-                        : team.level === "Intermediate"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-green-100 text-green-700"
-                    }`}
-                  >
-                    {team.level}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                        team.level === "Advanced"
+                          ? "bg-red-100 text-red-700"
+                          : team.level === "Intermediate"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-green-100 text-green-700"
+                      }`}
+                    >
+                      {team.level}
+                    </span>
+                    <button
+                      onClick={() => setLeaveTarget(team)}
+                      className="flex items-center gap-1 rounded-xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      Leave
+                    </button>
+                  </div>
                 </div>
               );
             })}
           </div>
         )}
       </div>
+
+      {leaveTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-gray-900">Leave Team?</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              Are you sure you want to leave <strong>{leaveTarget.name}</strong>?
+            </p>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setLeaveTarget(null)}
+                className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  setLeaving(true);
+                  try {
+                    const token = await getToken();
+                    if (token) {
+                      await leaveTeam(token, leaveTarget._id);
+                      setTeams((prev) => prev.filter((t) => t._id !== leaveTarget._id));
+                    }
+                  } catch {}
+                  setLeaving(false);
+                  setLeaveTarget(null);
+                }}
+                disabled={leaving}
+                className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+              >
+                {leaving ? "Leaving..." : "Yes, Leave"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

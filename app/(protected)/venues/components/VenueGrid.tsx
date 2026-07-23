@@ -5,9 +5,10 @@ interface Props {
   venues: Venue[];
   onSelect: (venue: Venue) => void;
   selectedId: string | null;
+  onRateClick?: (venue: Venue) => void;
 }
 
-export default function VenueGrid({ venues, onSelect, selectedId }: Props) {
+export default function VenueGrid({ venues, onSelect, selectedId, onRateClick }: Props) {
   if (venues.length === 0) {
     return (
       <div className="rounded-3xl border bg-white py-20 text-center shadow-sm">
@@ -26,6 +27,7 @@ export default function VenueGrid({ venues, onSelect, selectedId }: Props) {
           venue={venue}
           onSelect={onSelect}
           isSelected={venue._id === selectedId}
+          onRateClick={onRateClick}
         />
       ))}
     </div>

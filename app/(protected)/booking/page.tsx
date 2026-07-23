@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CalendarDays, Clock, MapPin, Star, ArrowLeft, Check, Calendar, MapPinned, X, Wallet, Banknote, Smartphone } from "lucide-react";
+import { CalendarDays, Clock, MapPin, Star, ArrowLeft, Check, Calendar, MapPinned, X, Wallet, Banknote, Smartphone, Landmark } from "lucide-react";
 import { getVenueById, type Venue } from "@/lib/api/venue";
 import { handleCreateBooking, handleGetMyBookings, handleCancelBooking } from "@/lib/actions/booking-action";
 
@@ -57,7 +57,7 @@ export default function BookingPage() {
   const [phone, setPhone] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [otp, setOtp] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"cash" | "fonepay" | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "khalti" | null>(null);
   const DISCOUNT = 50;
 
   const openConfirmModal = (e: React.FormEvent) => {
@@ -66,22 +66,72 @@ export default function BookingPage() {
     setShowConfirmModal(true);
   };
 
+  const handleKhaltiPayment = (bookingData: any) => {
+    const khaltiPublicKey = process.env.NEXT_PUBLIC_KHALTI_PUBLIC_KEY || "test_public_key_dc74e0fd57cb46cd93832aee0a390f8c";
+
+    const script = document.createElement("script");
+    script.src = "https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js";
+    script.onload = () => {
+      const config = {
+        publicKey: khaltiPublicKey,
+        productIdentity: `booking_${venue?._id}_${Date.now()}`,
+        productName: `${venue?.name} - Booking`,
+        productUrl: window.location.href,
+        eventHandler: {
+          onSuccess: async (payload: any) => {
+            const result = await handleCreateBooking({
+              ...bookingData,
+              paymentMethod: "khalti",
+              paymentId: payload.pidx,
+            });
+            if (!result.success) {
+              setError(result.message || "Payment succeeded but booking failed. Contact support.");
+              return;
+            }
+            setSuccess(true);
+          },
+          onError: (error: any) => {
+            setError(error?.message || "Khalti payment failed. Please try again.");
+          },
+          onClose: () => {
+            setSubmitting(false);
+          },
+        },
+        amount: Math.round(bookingData.totalPrice * 100),
+      };
+
+      const checkout = new (window as any).KhaltiCheckout(config);
+      checkout.show();
+    };
+    document.body.appendChild(script);
+  };
+
   const handleConfirm = async () => {
     if (!venue || !fullName.trim() || !phone.trim() || !paymentMethod || !date || !timeSlot) return;
 
     setSubmitting(true);
     setError(null);
 
+    const bookingData = {
+      venueId: venue._id,
+      venueName: venue.name,
+      sport: venue.sport,
+      city: venue.city,
+      date,
+      timeSlot,
+      duration,
+      totalPrice: venue.pricePerHour * duration,
+    };
+
+    if (paymentMethod === "khalti") {
+      handleKhaltiPayment(bookingData);
+      return;
+    }
+
     try {
       const result = await handleCreateBooking({
-        venueId: venue._id,
-        venueName: venue.name,
-        sport: venue.sport,
-        city: venue.city,
-        date,
-        timeSlot,
-        duration,
-        totalPrice: venue.pricePerHour * duration,
+        ...bookingData,
+        paymentMethod: "cash",
       });
       if (!result.success) throw new Error(result.message);
       setSuccess(true);
@@ -529,21 +579,20 @@ export default function BookingPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setPaymentMethod("fonepay")}
-                    className={`flex w-full items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left opacity-50 transition ${
-                      paymentMethod === "fonepay" ? "border-blue-600 bg-blue-50" : "border-gray-200"
+                    onClick={() => setPaymentMethod("khalti")}
+                    className={`flex w-full items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left transition ${
+                      paymentMethod === "khalti" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:border-blue-300"
                     }`}
                   >
                     <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${
-                      paymentMethod === "fonepay" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"
+                      paymentMethod === "khalti" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"
                     }`}>
-                      <Smartphone className="h-4 w-4" />
+                      <Landmark className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">FonePay Online</p>
-                      <p className="text-[11px] text-gray-500">Pay using FonePay wallet</p>
+                      <p className="text-sm font-medium text-gray-900">Khalti Online</p>
+                      <p className="text-[11px] text-gray-500">Pay using Khalti wallet</p>
                     </div>
-                    <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-500">Soon</span>
                   </button>
                 </div>
               </div>

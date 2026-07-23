@@ -25,7 +25,7 @@ export default function Hero() {
       </h1>
 
       <p className="text-gray-300 text-xl mt-6">
-        Find and book futsal courts, join teams, and compete — all in one place.
+        Find and book sport courts, join teams, and compete — all in one place.
       </p>
 
       <SearchBar />

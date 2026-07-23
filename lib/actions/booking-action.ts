@@ -14,6 +14,8 @@ interface CreateBookingData {
   timeSlot: string;
   duration: number;
   totalPrice: number;
+  paymentMethod?: string;
+  paymentId?: string;
 }
 
 interface Booking {

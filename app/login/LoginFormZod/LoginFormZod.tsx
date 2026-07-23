@@ -161,6 +161,15 @@ export default function LoginFormZod() {
               <span>LOGIN</span>
             )}
           </button>
+
+          <div className="text-center mt-3">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
+            >
+              Forgot Password?
+            </Link>
+          </div>
         </form>
 
         <div className="mt-10 text-center">

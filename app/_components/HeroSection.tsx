@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search, MapPin, Zap } from "lucide-react";
 
 const pills = [
@@ -8,6 +12,15 @@ const pills = [
 ];
 
 export default function HeroSection() {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("search", query.trim());
+    router.push(`/venues?${params.toString()}`);
+  };
+
   return (
     <section className="relative overflow-hidden bg-[#121A2A] px-4 py-20 text-white md:py-28">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
@@ -26,7 +39,7 @@ export default function HeroSection() {
         </h1>
 
         <p className="mx-auto mt-4 max-w-2xl text-lg text-blue-100">
-          Find and book futsal courts, join teams, and compete — all in one place.
+          Find and book sport courts, join teams, and compete — all in one place.
         </p>
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -49,10 +62,16 @@ export default function HeroSection() {
             <Search className="h-5 w-5 text-gray-400" />
             <input
               type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
               placeholder="Search for venues, cities..."
               className="flex-1 text-gray-900 outline-none placeholder:text-gray-400"
             />
-            <button className="rounded-xl bg-[#121A2A] px-6 py-2 text-sm font-semibold text-white transition hover:shadow-lg">
+            <button
+              onClick={handleSearch}
+              className="rounded-xl bg-[#121A2A] px-6 py-2 text-sm font-semibold text-white transition hover:shadow-lg"
+            >
               Search
             </button>
           </div>
