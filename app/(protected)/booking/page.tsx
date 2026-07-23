@@ -6,8 +6,6 @@ import Link from "next/link";
 import { CalendarDays, Clock, MapPin, Star, ArrowLeft, Check, Calendar, MapPinned, X, Wallet, Banknote, Smartphone, Landmark } from "lucide-react";
 import { getVenueById, type Venue } from "@/lib/api/venue";
 import { handleCreateBooking, handleGetMyBookings, handleCancelBooking } from "@/lib/actions/booking-action";
-import axiosInstance from "@/lib/api/axios-instance";
-import { API } from "@/lib/api/endpoints";
 
 const TIME_SLOTS = [
   "06:00-07:00", "07:00-08:00", "08:00-09:00", "09:00-10:00",
@@ -68,31 +66,44 @@ export default function BookingPage() {
     setShowConfirmModal(true);
   };
 
-  const handleKhaltiPayment = async (bookingData: any) => {
-    try {
-      const purchaseOrderId = `booking_${Date.now()}`;
-      const res = await axiosInstance.post(API.PAYMENTS.KHALTI_INITIATE, {
-        amount: bookingData.totalPrice,
-        purchase_order_id: purchaseOrderId,
-        purchase_order_name: `${venue?.name} - Booking`,
-        customer_info: { name: fullName, email: "", phone },
-      });
+  const handleKhaltiPayment = (bookingData: any) => {
+    const khaltiPublicKey = process.env.NEXT_PUBLIC_KHALTI_PUBLIC_KEY || "test_public_key_dc74e0fd57cb46cd93832aee0a390f8c";
 
-      const { pidx, payment_url } = res.data.data;
-      if (!payment_url) {
-        setError("Failed to get payment URL from Khalti");
-        setSubmitting(false);
-        return;
-      }
+    const script = document.createElement("script");
+    script.src = "https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js";
+    script.onload = () => {
+      const config = {
+        publicKey: khaltiPublicKey,
+        productIdentity: `booking_${venue?._id}_${Date.now()}`,
+        productName: `${venue?.name} - Booking`,
+        productUrl: window.location.href,
+        eventHandler: {
+          onSuccess: async (payload: any) => {
+            const result = await handleCreateBooking({
+              ...bookingData,
+              paymentMethod: "khalti",
+              paymentId: payload.pidx,
+            });
+            if (!result.success) {
+              setError(result.message || "Payment succeeded but booking failed. Contact support.");
+              return;
+            }
+            setSuccess(true);
+          },
+          onError: (error: any) => {
+            setError(error?.message || "Khalti payment failed. Please try again.");
+          },
+          onClose: () => {
+            setSubmitting(false);
+          },
+        },
+        amount: Math.round(bookingData.totalPrice * 100),
+      };
 
-      // Store booking data in session so callback page can use it
-      sessionStorage.setItem("khalti_booking", JSON.stringify({ ...bookingData, purchaseOrderId, pidx }));
-      // Redirect to Khalti payment page
-      window.location.href = payment_url;
-    } catch (e: any) {
-      setError(e?.response?.data?.message || e?.message || "Khalti payment initiation failed");
-      setSubmitting(false);
-    }
+      const checkout = new (window as any).KhaltiCheckout(config);
+      checkout.show();
+    };
+    document.body.appendChild(script);
   };
 
   const handleConfirm = async () => {

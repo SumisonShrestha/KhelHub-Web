@@ -28,7 +28,7 @@ export default function Navbar() {
     await handleLogout();
     setUser(null);
     setDropOpen(false);
-    router.push("/");
+    router.push("/login");
   };
 
   if (pathname === "/" || pathname === "/login" || pathname === "/register" || pathname.startsWith("/admin")) return null;

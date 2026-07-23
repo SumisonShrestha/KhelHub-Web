@@ -22,7 +22,7 @@ export default function ProfilePage() {
   const doLogout = async () => {
     await handleLogout();
     setUser(null);
-    router.push("/");
+    router.push("/login");
   };
 
   return (
