@@ -52,6 +52,7 @@ export default function BookingPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState<string | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -142,13 +143,6 @@ export default function BookingPage() {
     }
   };
 
-  const handleCancel = async (id: string) => {
-    setCancelling(id);
-    await handleCancelBooking(id);
-    loadBookings();
-    setCancelling(null);
-  };
-
   const statusColor = (s: string) => {
     switch (s) {
       case "upcoming": return "bg-blue-100 text-blue-700";
@@ -209,11 +203,10 @@ export default function BookingPage() {
                     </span>
                     {b.status === "upcoming" && (
                       <button
-                        onClick={() => handleCancel(b._id)}
-                        disabled={cancelling === b._id}
-                        className="rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                        onClick={() => setCancelTarget(b._id)}
+                        className="rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
                       >
-                        {cancelling === b._id ? "..." : "Cancel"}
+                        Cancel
                       </button>
                     )}
                   </div>
@@ -453,6 +446,36 @@ export default function BookingPage() {
           </div>
         </form>
       </div>
+
+      {cancelTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-gray-900">Cancel Booking?</h3>
+            <p className="mt-2 text-sm text-gray-600">Are you sure you want to cancel this booking?</p>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setCancelTarget(null)}
+                className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                No, Keep It
+              </button>
+              <button
+                onClick={async () => {
+                  setCancelling(cancelTarget);
+                  await handleCancelBooking(cancelTarget);
+                  loadBookings();
+                  setCancelling(null);
+                  setCancelTarget(null);
+                }}
+                disabled={cancelling === cancelTarget}
+                className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+              >
+                {cancelling === cancelTarget ? "Cancelling..." : "Yes, Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-3">
