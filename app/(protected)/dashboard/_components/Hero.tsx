@@ -23,7 +23,7 @@ export default function Hero({ onSearch }: Props) {
         <br />
 
         <span className="text-blue-500">
-          Perfect Pitch
+          Game Today
         </span>
 
       </h1>
