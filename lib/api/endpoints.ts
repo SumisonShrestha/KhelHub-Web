@@ -12,6 +12,10 @@ export const API = {
   ADMIN: {
     USERS: "/api/v1/admin/users",
     USER_BY_ID: (id: string) => `/api/v1/admin/users/${id}`,
+    VENUES: "/api/v1/admin/venues",
+    VENUE_BY_ID: (id: string) => `/api/v1/admin/venues/${id}`,
+    TEAMS: "/api/v1/admin/teams",
+    TEAM_BY_ID: (id: string) => `/api/v1/admin/teams/${id}`,
   },
 
   VENUES: {

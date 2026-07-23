@@ -1,4 +1,6 @@
 "use server";
+import axiosInstance from "@/lib/api/axios-instance";
+import { API } from "@/lib/api/endpoints";
 import {
     adminGetUsers,
     adminGetUserById,
@@ -81,6 +83,68 @@ export async function handleAdminDeleteUser(id: string) {
         return {
             success: false,
             message: e?.response?.data?.message || e?.message || "Failed to delete user",
+        };
+    }
+}
+
+export async function handleAdminGetVenues(params: { page?: number; limit?: number; search?: string }) {
+    try {
+        const token = await requireToken();
+        const res = await axiosInstance.get(API.ADMIN.VENUES, {
+            params,
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return { success: true, data: res.data.data, meta: res.data.meta };
+    } catch (e: any) {
+        return {
+            success: false,
+            message: e?.response?.data?.message || e?.message || "Failed to fetch venues",
+        };
+    }
+}
+
+export async function handleAdminDeleteVenue(id: string) {
+    try {
+        const token = await requireToken();
+        await axiosInstance.delete(API.ADMIN.VENUE_BY_ID(id), {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return { success: true, message: "Venue deleted successfully" };
+    } catch (e: any) {
+        return {
+            success: false,
+            message: e?.response?.data?.message || e?.message || "Failed to delete venue",
+        };
+    }
+}
+
+export async function handleAdminGetTeams(params: { page?: number; limit?: number; search?: string }) {
+    try {
+        const token = await requireToken();
+        const res = await axiosInstance.get(API.ADMIN.TEAMS, {
+            params,
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return { success: true, data: res.data.data, meta: res.data.meta };
+    } catch (e: any) {
+        return {
+            success: false,
+            message: e?.response?.data?.message || e?.message || "Failed to fetch teams",
+        };
+    }
+}
+
+export async function handleAdminDeleteTeam(id: string) {
+    try {
+        const token = await requireToken();
+        await axiosInstance.delete(API.ADMIN.TEAM_BY_ID(id), {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return { success: true, message: "Team deleted successfully" };
+    } catch (e: any) {
+        return {
+            success: false,
+            message: e?.response?.data?.message || e?.message || "Failed to delete team",
         };
     }
 }

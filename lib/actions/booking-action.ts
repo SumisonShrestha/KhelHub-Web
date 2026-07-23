@@ -72,9 +72,8 @@ export async function handleCancelBooking(bookingId: string) {
     const token = await getTokenCookie();
     if (!token) return { success: false, message: "Not authenticated" };
 
-    await axios.put(
-      `${BASE_URL}/api/v1/bookings/${bookingId}/cancel`,
-      {},
+    await axios.delete(
+      `${BASE_URL}/api/v1/bookings/${bookingId}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
 

@@ -37,7 +37,7 @@ export default function LoginFormZod() {
       setUser(result.data?.user);
       const role = result.data?.user?.role;
       if (role === "admin") {
-        router.replace("/admin/users");
+        router.replace("/admin");
       } else {
         router.replace("/dashboard");
       }
