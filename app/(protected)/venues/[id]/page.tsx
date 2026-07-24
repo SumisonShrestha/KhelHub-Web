@@ -24,13 +24,13 @@ export default function VenueDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-black">
         <div className="mx-auto max-w-4xl px-4 py-12 md:px-6">
           <div className="animate-pulse space-y-6">
-            <div className="h-64 w-full rounded-3xl bg-gray-200" />
-            <div className="h-8 w-2/3 rounded bg-gray-200" />
-            <div className="h-4 w-1/3 rounded bg-gray-200" />
-            <div className="h-20 w-full rounded bg-gray-200" />
+            <div className="h-64 w-full rounded-3xl bg-gray-800" />
+            <div className="h-8 w-2/3 rounded bg-gray-800" />
+            <div className="h-4 w-1/3 rounded bg-gray-800" />
+            <div className="h-20 w-full rounded bg-gray-800" />
           </div>
         </div>
       </div>
@@ -39,8 +39,8 @@ export default function VenueDetailPage() {
 
   if (!venue) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Venue not found</p>
+      <div className="flex min-h-screen items-center justify-center bg-black">
+        <p className="text-gray-400">Venue not found</p>
       </div>
     );
   }
@@ -50,16 +50,16 @@ export default function VenueDetailPage() {
     : null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       <div className="mx-auto max-w-4xl px-4 py-8 md:px-6">
         <button
           onClick={() => router.back()}
-          className="mb-6 flex items-center gap-2 text-sm text-gray-500 transition hover:text-gray-900"
+          className="mb-6 flex items-center gap-2 text-sm text-gray-400 transition hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" /> Back
         </button>
 
-        <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
+        <div className="overflow-hidden rounded-3xl bg-[#111] shadow-lg">
           <div className="relative h-64 md:h-80">
             <img
               src={venue.image || FALLBACK_IMAGE}
@@ -74,8 +74,8 @@ export default function VenueDetailPage() {
 
           <div className="space-y-6 p-6 md:p-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">{venue.name}</h1>
-              <p className="mt-2 flex items-center gap-1.5 text-gray-500">
+              <h1 className="text-3xl font-bold text-white md:text-4xl">{venue.name}</h1>
+              <p className="mt-2 flex items-center gap-1.5 text-gray-400">
                 <MapPin className="h-4 w-4" /> {venue.location}
               </p>
             </div>
@@ -86,27 +86,27 @@ export default function VenueDetailPage() {
                 {venue.rating} ({venue.reviews} reviews)
               </div>
               <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700">{venue.category || venue.sport}</span>
-              <span className="flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600">
+              <span className="flex items-center gap-1 rounded-full bg-gray-800 px-3 py-1 text-sm text-gray-300">
                 <Building2 className="h-3.5 w-3.5" /> {venue.city}
               </span>
               {listedDate && (
-                <span className="flex items-center gap-1 text-sm text-gray-400">
+                <span className="flex items-center gap-1 text-sm text-gray-500">
                   <Clock className="h-3.5 w-3.5" /> Listed {listedDate}
                 </span>
               )}
             </div>
 
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">About this venue</h2>
-              <p className="mt-2 leading-relaxed text-gray-600">{venue.description}</p>
+              <h2 className="text-lg font-semibold text-white">About this venue</h2>
+              <p className="mt-2 leading-relaxed text-gray-400">{venue.description}</p>
             </div>
 
             {venue.amenities.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Amenities</h2>
+                <h2 className="text-lg font-semibold text-white">Amenities</h2>
                 <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-3">
                   {venue.amenities.map((item) => (
-                    <div key={item} className="flex items-center gap-2 rounded-xl bg-gray-50 px-4 py-2.5 text-sm text-gray-700">
+                    <div key={item} className="flex items-center gap-2 rounded-xl bg-gray-800 px-4 py-2.5 text-sm text-gray-300">
                       <Check className="h-4 w-4 text-green-500" />
                       {item}
                     </div>
@@ -117,47 +117,47 @@ export default function VenueDetailPage() {
 
             <div className="grid gap-6 md:grid-cols-2">
               {venue.ownerName && (
-                <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4">
-                  <User className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 rounded-xl bg-gray-800 p-4">
+                  <User className="h-5 w-5 text-gray-500" />
                   <div>
                     <p className="text-xs text-gray-500">Owner</p>
-                    <p className="font-medium text-gray-900">{venue.ownerName}</p>
+                    <p className="font-medium text-gray-200">{venue.ownerName}</p>
                   </div>
                 </div>
               )}
               {venue.phone && (
-                <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4">
-                  <Phone className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 rounded-xl bg-gray-800 p-4">
+                  <Phone className="h-5 w-5 text-gray-500" />
                   <div>
                     <p className="text-xs text-gray-500">Phone</p>
-                    <p className="font-medium text-gray-900">{venue.phone}</p>
+                    <p className="font-medium text-gray-200">{venue.phone}</p>
                   </div>
                 </div>
               )}
               {venue.email && (
-                <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 rounded-xl bg-gray-800 p-4">
+                  <Mail className="h-5 w-5 text-gray-500" />
                   <div>
                     <p className="text-xs text-gray-500">Email</p>
-                    <p className="font-medium text-gray-900">{venue.email}</p>
+                    <p className="font-medium text-gray-200">{venue.email}</p>
                   </div>
                 </div>
               )}
               {venue.openingTime && venue.closingTime && (
-                <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4">
-                  <Clock3 className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 rounded-xl bg-gray-800 p-4">
+                  <Clock3 className="h-5 w-5 text-gray-500" />
                   <div>
                     <p className="text-xs text-gray-500">Hours</p>
-                    <p className="font-medium text-gray-900">{venue.openingTime} - {venue.closingTime}</p>
+                    <p className="font-medium text-gray-200">{venue.openingTime} - {venue.closingTime}</p>
                   </div>
                 </div>
               )}
               {(venue.weekendPrice || venue.nightPrice) && (
-                <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4">
-                  <Percent className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 rounded-xl bg-gray-800 p-4">
+                  <Percent className="h-5 w-5 text-gray-500" />
                   <div>
                     <p className="text-xs text-gray-500">Pricing</p>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-200">
                       {venue.weekendPrice && <>Weekend: Rs {venue.weekendPrice.toLocaleString()}</>}
                       {venue.weekendPrice && venue.nightPrice && <span className="mx-1">|</span>}
                       {venue.nightPrice && <>Night: Rs {venue.nightPrice.toLocaleString()}</>}
@@ -166,11 +166,11 @@ export default function VenueDetailPage() {
                 </div>
               )}
               {venue.discount && (
-                <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4">
-                  <Percent className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 rounded-xl bg-gray-800 p-4">
+                  <Percent className="h-5 w-5 text-gray-500" />
                   <div>
                     <p className="text-xs text-gray-500">Discount</p>
-                    <p className="font-medium text-green-600">{venue.discount}</p>
+                    <p className="font-medium text-green-400">{venue.discount}</p>
                   </div>
                 </div>
               )}
@@ -181,24 +181,24 @@ export default function VenueDetailPage() {
                 href={venue.googleMapsLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-700 px-5 py-2.5 text-sm font-semibold text-gray-300 transition hover:bg-gray-800"
               >
                 <ExternalLink className="h-4 w-4" />
                 View on Google Maps
               </a>
             )}
 
-            <div className="flex flex-wrap gap-3 border-t pt-6">
+            <div className="flex flex-wrap gap-3 border-t border-gray-700 pt-6">
               <Link
                 href={`/booking?venueId=${venue._id}`}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#121A2A] px-8 py-3 font-semibold text-white shadow transition hover:shadow-lg"
+                className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3 font-semibold text-black shadow transition hover:shadow-lg"
               >
                 <Calendar className="h-4 w-4" />
                 Book This Venue
               </Link>
               <button
                 onClick={() => router.push("/venues")}
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-8 py-3 font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-600 px-8 py-3 font-semibold text-gray-300 transition hover:bg-gray-800"
               >
                 View All Venues
               </button>
