@@ -6,8 +6,7 @@ import Link from "next/link";
 import { Plus, Building2, Edit, Trash2, Loader2, AlertCircle, Calendar, MapPin, LogOut } from "lucide-react";
 import axiosInstance from "@/lib/api/axios-instance";
 import { API } from "@/lib/api/endpoints";
-import { getTokenCookie } from "@/lib/cookies";
-import { handleLogout } from "@/lib/actions/auth-action";
+import { handleLogout, getToken } from "@/lib/actions/auth-action";
 
 interface Venue {
   _id: string;
@@ -31,7 +30,11 @@ export default function OwnerDashboardPage() {
 
   const fetchVenues = async () => {
     try {
-      const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+      const token = await getToken();
+      if (!token) {
+        router.replace("/login");
+        return;
+      }
       const res = await axiosInstance.get(API.VENUES.MY_VENUES, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -44,21 +47,14 @@ export default function OwnerDashboardPage() {
   };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = await getTokenCookie();
-      if (!token) {
-        router.replace("/login");
-        return;
-      }
-      fetchVenues();
-    };
-    checkAuth();
+    fetchVenues();
   }, []);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
     try {
-      const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+      const token = await getToken();
+      if (!token) return;
       await axiosInstance.delete(API.VENUES.BY_ID(id), {
         headers: { Authorization: `Bearer ${token}` },
       });
