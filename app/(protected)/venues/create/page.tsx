@@ -110,10 +110,10 @@ export default function CreateVenuePage() {
           <h2 className="mt-5 text-2xl font-bold text-gray-900">Venue Submitted!</h2>
           <p className="mt-2 text-gray-500">Your venue is now live and available for bookings.</p>
           <button
-            onClick={() => router.push("/venues")}
+            onClick={() => router.push("/owner")}
             className="mt-8 rounded-xl bg-[#121A2A] px-6 py-3 font-semibold text-white shadow transition hover:shadow-lg"
           >
-            View Venues
+            Go to Owner Dashboard
           </button>
         </div>
       </div>
