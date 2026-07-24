@@ -312,7 +312,7 @@ export default function AdminUsersClient() {
                     {/* Pagination */}
                     {!isLoading && !error && meta.totalPages > 1 && (
                         <div className="border-t border-gray-100 p-4">
-                            <Pagination meta={meta} onPageChange={setPage} />
+                            <Pagination meta={meta} onPageChange={setPage} label="users" />
                         </div>
                     )}
                 </div>

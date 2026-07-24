@@ -5,9 +5,10 @@ import { PaginationMeta } from "@/lib/api/admin";
 interface PaginationProps {
     meta: PaginationMeta;
     onPageChange: (page: number) => void;
+    label?: string;
 }
 
-export default function Pagination({ meta, onPageChange }: PaginationProps) {
+export default function Pagination({ meta, onPageChange, label = "items" }: PaginationProps) {
     const { page, totalPages, total, limit } = meta;
     const start = (page - 1) * limit + 1;
     const end   = Math.min(page * limit, total);
@@ -35,7 +36,7 @@ export default function Pagination({ meta, onPageChange }: PaginationProps) {
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
             <p className="text-xs text-gray-500">
                 Showing <span className="font-medium text-gray-700">{total === 0 ? 0 : start}–{end}</span>{" "}
-                of <span className="font-medium text-gray-700">{total}</span> users
+                of <span className="font-medium text-gray-700">{total}</span> {label}
             </p>
 
             <div className="flex items-center gap-1">

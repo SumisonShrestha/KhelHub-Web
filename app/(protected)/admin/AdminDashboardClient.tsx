@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Users, Building2, Trophy, ShieldCheck, LogOut } from "lucide-react";
+import { Users, Building2, Trophy, Calendar, ShieldCheck, LogOut } from "lucide-react";
 import { getVenues } from "@/lib/api/venue";
 import axiosInstance from "@/lib/api/axios-instance";
 import { handleLogout } from "@/lib/actions/auth-action";
@@ -16,7 +16,7 @@ interface Props {
 export default function AdminDashboardClient({ user, token }: Props) {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
-  const [stats, setStats] = useState({ users: 0, venues: 0 });
+  const [stats, setStats] = useState({ users: 0, venues: 0, bookings: 0 });
 
   useEffect(() => {
     (async () => {
@@ -25,9 +25,13 @@ export default function AdminDashboardClient({ user, token }: Props) {
         const userRes = await axiosInstance.get("/api/v1/admin/users?limit=1", {
           headers: { Authorization: `Bearer ${token}` },
         });
+        const bookingRes = await axiosInstance.get("/api/v1/admin/bookings?limit=1", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setStats({
           users: userRes.data.meta?.total || 0,
           venues: venues.length,
+          bookings: bookingRes.data.meta?.total || 0,
         });
       } catch {}
     })();
@@ -36,12 +40,14 @@ export default function AdminDashboardClient({ user, token }: Props) {
   const cards = [
     { label: "Users", value: stats.users, icon: Users, href: "/admin/users", color: "bg-blue-500" },
     { label: "Venues", value: stats.venues, icon: Building2, href: "/admin/venues", color: "bg-green-500" },
+    { label: "Bookings", value: stats.bookings, icon: Calendar, href: "/admin/bookings", color: "bg-purple-500" },
   ];
 
   const quickLinks = [
     { label: "Manage Users", href: "/admin/users", icon: Users, desc: "Create, edit, or remove users" },
     { label: "Manage Venues", href: "/admin/venues", icon: Building2, desc: "View and manage all venues" },
     { label: "Manage Teams", href: "/admin/teams", icon: Trophy, desc: "View and manage teams" },
+    { label: "Manage Bookings", href: "/admin/bookings", icon: Calendar, desc: "View and manage all bookings" },
   ];
 
   return (
