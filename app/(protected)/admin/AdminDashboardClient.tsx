@@ -52,12 +52,9 @@ export default function AdminDashboardClient({ user, token }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Welcome, {user.firstName}!</h2>
-            <p className="text-gray-500">Here&apos;s an overview of your platform.</p>
-          </div>
+      <div className="bg-[#121A2A] px-4 py-6 sm:py-8">
+        <div className="mx-auto max-w-6xl flex items-center justify-between">
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-wide">ADMIN DASHBOARD</h1>
           <button
             onClick={async () => {
               setLoggingOut(true);
@@ -65,12 +62,15 @@ export default function AdminDashboardClient({ user, token }: Props) {
               router.replace("/login");
             }}
             disabled={loggingOut}
-            className="flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg border border-red-400/40 px-4 py-2 text-sm font-medium text-red-300 hover:bg-red-500/10 transition-colors disabled:opacity-50"
           >
             <LogOut size={14} />
             {loggingOut ? "Logging out…" : "Logout"}
           </button>
         </div>
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 py-8">
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((card) => {
