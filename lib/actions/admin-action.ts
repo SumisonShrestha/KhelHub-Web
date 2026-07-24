@@ -148,3 +148,49 @@ export async function handleAdminDeleteTeam(id: string) {
         };
     }
 }
+
+export async function handleAdminGetBookings(params: { page?: number; limit?: number; search?: string }) {
+    try {
+        const token = await requireToken();
+        const res = await axiosInstance.get(API.ADMIN.BOOKINGS, {
+            params,
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return { success: true, data: res.data.data, meta: res.data.meta };
+    } catch (e: any) {
+        return {
+            success: false,
+            message: e?.response?.data?.message || e?.message || "Failed to fetch bookings",
+        };
+    }
+}
+
+export async function handleAdminGetBooking(id: string) {
+    try {
+        const token = await requireToken();
+        const res = await axiosInstance.get(API.ADMIN.BOOKING_BY_ID(id), {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return { success: true, data: res.data.data };
+    } catch (e: any) {
+        return {
+            success: false,
+            message: e?.response?.data?.message || e?.message || "Failed to fetch booking",
+        };
+    }
+}
+
+export async function handleAdminDeleteBooking(id: string) {
+    try {
+        const token = await requireToken();
+        await axiosInstance.delete(API.ADMIN.BOOKING_BY_ID(id), {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return { success: true, message: "Booking cancelled successfully" };
+    } catch (e: any) {
+        return {
+            success: false,
+            message: e?.response?.data?.message || e?.message || "Failed to cancel booking",
+        };
+    }
+}

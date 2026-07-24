@@ -16,6 +16,8 @@ export const API = {
     VENUE_BY_ID: (id: string) => `/api/v1/admin/venues/${id}`,
     TEAMS: "/api/v1/admin/teams",
     TEAM_BY_ID: (id: string) => `/api/v1/admin/teams/${id}`,
+    BOOKINGS: "/api/v1/admin/bookings",
+    BOOKING_BY_ID: (id: string) => `/api/v1/admin/bookings/${id}`,
   },
 
   VENUES: {
