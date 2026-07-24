@@ -38,6 +38,8 @@ export default function LoginFormZod() {
       const role = result.data?.user?.role;
       if (role === "admin") {
         router.replace("/admin");
+      } else if (role === "owner") {
+        router.replace("/owner");
       } else {
         router.replace("/dashboard");
       }
