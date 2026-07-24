@@ -16,6 +16,7 @@ export interface User {
     lastName: string;
     username: string;
     email: string;
+    role?: "admin" | "owner" | "user";
     profilePicture?: string | null;
     [key: string]: unknown;
 }

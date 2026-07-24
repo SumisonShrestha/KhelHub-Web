@@ -12,7 +12,7 @@ const createSchema = z.object({
     username:  z.string().min(3, "Username must be at least 3 characters"),
     email:     z.string().email("Invalid email address"),
     password:  z.string().min(6, "Password must be at least 6 characters"),
-    role:      z.enum(["admin", "user"]),
+    role:      z.enum(["admin", "owner", "user"]),
 });
 
 const editSchema = z.object({
@@ -21,7 +21,7 @@ const editSchema = z.object({
     username:  z.string().min(3, "Username must be at least 3 characters"),
     email:     z.string().email("Invalid email address"),
     password:  z.string().min(6, "Password must be at least 6 characters").optional().or(z.literal("")),
-    role:      z.enum(["admin", "user"]),
+    role:      z.enum(["admin", "owner", "user"]),
 });
 
 type CreateFormData = z.infer<typeof createSchema>;
@@ -165,6 +165,7 @@ export default function UserFormModal({
                         <label className="mb-1.5 block text-xs font-medium text-gray-700">Role</label>
                         <select {...register("role")} className={`${inputCls(!!errors.role)} cursor-pointer`}>
                             <option value="user">User</option>
+                            <option value="owner">Owner</option>
                             <option value="admin">Admin</option>
                         </select>
                         {errors.role && (

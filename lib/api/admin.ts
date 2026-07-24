@@ -7,7 +7,7 @@ export interface AdminUser {
     lastName: string;
     username: string;
     email: string;
-    role: "admin" | "user";
+    role: "admin" | "owner" | "user";
     profilePicture: string | null;
     createdAt: string;
     updatedAt: string;
@@ -31,7 +31,7 @@ export interface AdminCreateUserPayload {
     username: string;
     email: string;
     password: string;
-    role: "admin" | "user";
+    role: "admin" | "owner" | "user";
 }
 
 export interface AdminUpdateUserPayload {
@@ -40,7 +40,7 @@ export interface AdminUpdateUserPayload {
     username?: string;
     email?: string;
     password?: string;
-    role?: "admin" | "user";
+    role?: "admin" | "owner" | "user";
 }
 
 export const adminGetUsers = async (

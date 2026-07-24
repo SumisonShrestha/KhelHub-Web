@@ -23,6 +23,7 @@ export const API = {
   VENUES: {
     ALL: "/api/v1/venues",
     BY_ID: (id: string) => `/api/v1/venues/${id}`,
+    MY_VENUES: "/api/v1/venues/my-venues",
   },
 
   BOOKINGS: {

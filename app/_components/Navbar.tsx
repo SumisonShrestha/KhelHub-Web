@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X, User, UserCircle, Calendar, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X, User, UserCircle, Calendar, LogOut, ChevronDown, Building2 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { handleLogout } from "@/lib/actions/auth-action";
 
@@ -68,12 +68,6 @@ export default function Navbar() {
           >
             My Teams
           </Link>
-          <Link
-            href="/venues/create"
-            className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
-          >
-            List Your Venue
-          </Link>
           {user ? (
             <div className="relative" ref={dropRef}>
               <button onClick={() => setDropOpen(!dropOpen)} className="flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">
@@ -95,6 +89,12 @@ export default function Navbar() {
                     <Calendar className="h-4 w-4" />
                     Bookings
                   </Link>
+                  {user?.role === "owner" && (
+                    <Link href="/owner" onClick={() => setDropOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
+                      <Building2 className="h-4 w-4" />
+                      Owner Dashboard
+                    </Link>
+                  )}
                   <hr className="my-1 border-white/10" />
                   <button onClick={doLogout} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
                     <LogOut className="h-4 w-4" />
@@ -135,9 +135,6 @@ export default function Navbar() {
             <div className="flex gap-2">
               <Link href="/my-teams" onClick={() => setOpen(false)} className="flex-1 rounded-full border border-white/20 px-5 py-2 text-center text-sm font-semibold text-white">
                 My Teams
-              </Link>
-              <Link href="/venues/create" onClick={() => setOpen(false)} className="flex-1 rounded-full border border-white/20 px-5 py-2 text-center text-sm font-semibold text-white">
-                List Your Venue
               </Link>
             </div>
             {user ? (

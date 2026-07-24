@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useTransition } from "react";
-import { Search, Plus, Pencil, Trash2, Users, RefreshCw, ShieldCheck, UserCircle2, AlertCircle, Loader2, LogOut } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, Users, RefreshCw, ShieldCheck, UserCircle2, Building2, AlertCircle, Loader2, LogOut } from "lucide-react";
 import { AdminUser, PaginationMeta } from "@/lib/api/admin";
 import {
     handleAdminGetUsers,
@@ -122,10 +122,14 @@ export default function AdminUsersClient() {
     const formatDate = (iso: string) =>
         new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 
-    const RoleBadge = ({ role }: { role: "admin" | "user" }) =>
+    const RoleBadge = ({ role }: { role: "admin" | "owner" | "user" }) =>
         role === "admin" ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700">
                 <ShieldCheck size={10} /> Admin
+            </span>
+        ) : role === "owner" ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                <Building2 size={10} /> Owner
             </span>
         ) : (
             <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
