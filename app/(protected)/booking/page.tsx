@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CalendarDays, Clock, MapPin, Star, ArrowLeft, Check, Calendar, MapPinned, X, Banknote, Landmark } from "lucide-react";
@@ -66,44 +66,61 @@ export default function BookingPage() {
     setShowConfirmModal(true);
   };
 
+  const khaltiLoadedRef = useRef(false);
+
   const handleKhaltiPayment = (bookingData: any) => {
     const khaltiPublicKey = process.env.NEXT_PUBLIC_KHALTI_PUBLIC_KEY || "test_public_key_dc74e0fd57cb46cd93832aee0a390f8c";
 
-    const script = document.createElement("script");
-    script.src = "https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js";
-    script.onload = () => {
-      const config = {
-        publicKey: khaltiPublicKey,
-        productIdentity: `booking_${venue?._id}_${Date.now()}`,
-        productName: `${venue?.name} - Booking`,
-        productUrl: window.location.href,
-        eventHandler: {
-          onSuccess: async (payload: any) => {
-            const result = await handleCreateBooking({
-              ...bookingData,
-              paymentMethod: "khalti",
-              paymentId: payload.pidx,
-            });
-            if (!result.success) {
-              setError(result.message || "Payment succeeded but booking failed. Contact support.");
-              return;
-            }
-            setSuccess(true);
-          },
-          onError: (error: any) => {
-            setError(error?.message || "Khalti payment failed. Please try again.");
-          },
-          onClose: () => {
-            setSubmitting(false);
-          },
-        },
-        amount: Math.round(bookingData.totalPrice * 100),
-      };
+    if (!khaltiLoadedRef.current) {
+      const script = document.createElement("script");
+      script.src = "https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js";
+      script.async = true;
 
-      const checkout = new (window as any).KhaltiCheckout(config);
-      checkout.show();
+      script.onload = () => {
+        khaltiLoadedRef.current = true;
+        openKhaltiCheckout(bookingData, khaltiPublicKey);
+      };
+      script.onerror = () => {
+        setError("Failed to load Khalti payment SDK. Please try again.");
+        setSubmitting(false);
+      };
+      document.body.appendChild(script);
+    } else {
+      openKhaltiCheckout(bookingData, khaltiPublicKey);
+    }
+  };
+
+  const openKhaltiCheckout = (bookingData: any, publicKey: string) => {
+    const config = {
+      publicKey,
+      productIdentity: `booking_${venue?._id}_${Date.now()}`,
+      productName: `${venue?.name} - Booking`,
+      productUrl: window.location.href,
+      paymentPreference: ["KHALTI", "EBANKING", "MOBILE_BANKING", "CONNECT_IPS", "SCT"],
+      eventHandler: {
+        onSuccess: async (payload: any) => {
+          const result = await handleCreateBooking({
+            ...bookingData,
+            paymentMethod: "khalti",
+            paymentId: payload.pidx,
+          });
+          if (!result.success) {
+            setError(result.message || "Payment succeeded but booking failed. Contact support.");
+            return;
+          }
+          setSuccess(true);
+        },
+        onError: (error: any) => {
+          setError(error?.message || "Khalti payment failed. Please try again.");
+        },
+        onClose: () => {
+          setSubmitting(false);
+        },
+      },
     };
-    document.body.appendChild(script);
+
+    const checkout = new (window as any).KhaltiCheckout(config);
+    checkout.show({ amount: Math.round(bookingData.totalPrice * 100) });
   };
 
   const handleConfirm = async () => {
