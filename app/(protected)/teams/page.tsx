@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Users, X, Trash2 } from "lucide-react";
 import { getTeams, type Team } from "@/lib/api/team";
-import { handleJoinTeam, handleGetMyTeams, handleDeleteTeam } from "@/lib/actions/team-action";
+import { handleJoinTeam, handleGetMyTeams, handleDeleteTeam, handleGetSentRequests, handleLeaveTeam } from "@/lib/actions/team-action";
 import { useUser } from "@/context/UserContext";
 
 export default function TeamsPage() {
@@ -15,10 +15,12 @@ export default function TeamsPage() {
   const [search, setSearch] = useState("");
   const [joining, setJoining] = useState<Set<string>>(new Set());
   const [joinedTeams, setJoinedTeams] = useState<Set<string>>(new Set());
+  const [requestedTeams, setRequestedTeams] = useState<Set<string>>(new Set());
   const [joinTarget, setJoinTarget] = useState<Team | null>(null);
   const [joinName, setJoinName] = useState("");
   const [joinMsg, setJoinMsg] = useState("");
   const [cancelling, setCancelling] = useState<Set<string>>(new Set());
+  const [leaving, setLeaving] = useState<Set<string>>(new Set());
 
   const loadTeams = useCallback(async () => {
     try {
@@ -29,6 +31,10 @@ export default function TeamsPage() {
         const myTeamsRes = await handleGetMyTeams();
         if (myTeamsRes.success) {
           setJoinedTeams(new Set(myTeamsRes.data.map((t: any) => t._id)));
+        }
+        const sentRes = await handleGetSentRequests();
+        if (sentRes.success) {
+          setRequestedTeams(new Set(sentRes.data.map((r: any) => r.teamId)));
         }
       } catch {
         // not authenticated, that's ok
@@ -44,10 +50,33 @@ export default function TeamsPage() {
     loadTeams();
   }, [loadTeams]);
 
+  useEffect(() => {
+    const refresh = async () => {
+      if (document.visibilityState === "visible") {
+        const sentRes = await handleGetSentRequests();
+        if (sentRes.success) {
+          setRequestedTeams(new Set(sentRes.data.map((r: any) => r.teamId)));
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", refresh);
+    return () => document.removeEventListener("visibilitychange", refresh);
+  }, []);
+
   const openJoinModal = (team: Team) => {
     setJoinTarget(team);
     setJoinName("");
     setJoinMsg("");
+  };
+
+  const handleLeaveTeamAction = async (teamId: string) => {
+    setLeaving((prev) => new Set(prev).add(teamId));
+    const res = await handleLeaveTeam(teamId);
+    if (res.success) {
+      setJoinedTeams((prev) => { const next = new Set(prev); next.delete(teamId); return next; });
+      setRequestedTeams((prev) => { const next = new Set(prev); next.delete(teamId); return next; });
+    }
+    setLeaving((prev) => { const next = new Set(prev); next.delete(teamId); return next; });
   };
 
   const handleCancelTeam = async (teamId: string) => {
@@ -61,9 +90,12 @@ export default function TeamsPage() {
   const handleJoinSubmit = async () => {
     if (!joinTarget) return;
     setJoining((prev) => new Set(prev).add(joinTarget._id));
-    const result = await handleJoinTeam(joinTarget._id);
+    const result = await handleJoinTeam(joinTarget._id, joinName, joinMsg || undefined);
     if (result.success) {
-      setJoinedTeams((prev) => new Set(prev).add(joinTarget._id));
+      const sentRes = await handleGetSentRequests();
+      if (sentRes.success) {
+        setRequestedTeams(new Set(sentRes.data.map((r: any) => r.teamId)));
+      }
     }
     setJoining((prev) => { const next = new Set(prev); next.delete(joinTarget._id); return next; });
     setJoinTarget(null);
@@ -219,7 +251,7 @@ export default function TeamsPage() {
                       {team.level}
                     </span>
                     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        {team.createdBy === (user as any)?._id && (
+                        {team.createdBy === (user as any)?._id ? (
                           <button
                             onClick={() => handleCancelTeam(team._id)}
                             disabled={cancelling.has(team._id)}
@@ -228,10 +260,17 @@ export default function TeamsPage() {
                             <Trash2 className="h-3.5 w-3.5" />
                             {cancelling.has(team._id) ? "Cancelling..." : "Cancel"}
                           </button>
-                        )}
-                        {joinedTeams.has(team._id) ? (
-                          <span className="rounded-lg border border-green-500 bg-white px-5 py-2 text-sm font-medium text-green-600">
-                            Joined
+                        ) : joinedTeams.has(team._id) ? (
+                          <button
+                            onClick={() => handleLeaveTeamAction(team._id)}
+                            disabled={leaving.has(team._id)}
+                            className="flex items-center gap-1 rounded-lg border border-orange-200 px-4 py-2 text-sm font-medium text-orange-600 transition hover:bg-orange-50 disabled:opacity-50"
+                          >
+                            {leaving.has(team._id) ? "Leaving..." : "Leave"}
+                          </button>
+                        ) : requestedTeams.has(team._id) ? (
+                          <span className="rounded-lg border border-yellow-500 bg-yellow-50 px-5 py-2 text-sm font-medium text-yellow-600">
+                            Requested
                           </span>
                         ) : (
                           <button

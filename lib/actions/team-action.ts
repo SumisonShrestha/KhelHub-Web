@@ -25,14 +25,14 @@ export async function handleCreateTeam(data: { name: string; description?: strin
   }
 }
 
-export async function handleJoinTeam(teamId: string) {
+export async function handleJoinTeam(teamId: string, senderName: string, message?: string) {
   try {
     const token = await getTokenCookie();
     if (!token) return { success: false, message: "Not authenticated" };
 
     const res = await axios.post(
       `${BASE_URL}/api/v1/teams/${teamId}/join`,
-      {},
+      { senderName, message },
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
@@ -40,7 +40,7 @@ export async function handleJoinTeam(teamId: string) {
   } catch (error: any) {
     return {
       success: false,
-      message: error?.response?.data?.message || "Failed to join team",
+      message: error?.response?.data?.message || "Failed to send join request",
     };
   }
 }
@@ -76,5 +76,86 @@ export async function handleGetMyTeams() {
     return { success: true, data: res.data.data as any[] };
   } catch {
     return { success: false, message: "Failed to fetch my teams", data: [] };
+  }
+}
+
+export async function handleGetReceivedRequests() {
+  try {
+    const token = await getTokenCookie();
+    if (!token) return { success: false, message: "Not authenticated", data: [] };
+
+    const res = await axios.get(`${BASE_URL}/api/v1/teams/join-requests/received`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return { success: true, data: res.data.data as any[] };
+  } catch {
+    return { success: false, message: "Failed to fetch requests", data: [] };
+  }
+}
+
+export async function handleGetSentRequests() {
+  try {
+    const token = await getTokenCookie();
+    if (!token) return { success: false, message: "Not authenticated", data: [] };
+
+    const res = await axios.get(`${BASE_URL}/api/v1/teams/join-requests/sent`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return { success: true, data: res.data.data as any[] };
+  } catch {
+    return { success: false, message: "Failed to fetch requests", data: [] };
+  }
+}
+
+export async function handleApproveRequest(requestId: string) {
+  try {
+    const token = await getTokenCookie();
+    if (!token) return { success: false, message: "Not authenticated" };
+
+    const res = await axios.put(
+      `${BASE_URL}/api/v1/teams/join-requests/${requestId}/approve`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return { success: true, message: res.data.message };
+  } catch (error: any) {
+    return { success: false, message: error?.response?.data?.message || "Failed to approve request" };
+  }
+}
+
+export async function handleDenyRequest(requestId: string) {
+  try {
+    const token = await getTokenCookie();
+    if (!token) return { success: false, message: "Not authenticated" };
+
+    const res = await axios.put(
+      `${BASE_URL}/api/v1/teams/join-requests/${requestId}/deny`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return { success: true, message: res.data.message };
+  } catch (error: any) {
+    return { success: false, message: error?.response?.data?.message || "Failed to deny request" };
+  }
+}
+
+export async function handleLeaveTeam(teamId: string) {
+  try {
+    const token = await getTokenCookie();
+    if (!token) return { success: false, message: "Not authenticated" };
+
+    const res = await axios.post(
+      `${BASE_URL}/api/v1/teams/${teamId}/leave`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return { success: true, message: res.data.message };
+  } catch (error: any) {
+    return { success: false, message: error?.response?.data?.message || "Failed to leave team" };
   }
 }

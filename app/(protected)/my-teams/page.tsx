@@ -1,35 +1,68 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Home, LogOut, Trash2 } from "lucide-react";
+import { Users, Home, LogOut, Trash2, Check, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { handleDeleteTeam, handleGetMyTeams } from "@/lib/actions/team-action";
+import { handleDeleteTeam, handleGetMyTeams, handleGetReceivedRequests, handleApproveRequest, handleDenyRequest } from "@/lib/actions/team-action";
 import { getToken } from "@/lib/actions/auth-action";
 import { leaveTeam } from "@/lib/api/team";
 import { useUser } from "@/context/UserContext";
 import type { Team } from "@/lib/api/team";
 
+interface JoinRequest {
+  _id: string;
+  teamId: string;
+  teamName: string;
+  senderId: string;
+  senderName: string;
+  message?: string;
+  status: "pending" | "approved" | "denied";
+  createdAt: string;
+}
+
 export default function MyTeamsPage() {
   const { user } = useUser();
   const router = useRouter();
   const [teams, setTeams] = useState<Team[]>([]);
+  const [requests, setRequests] = useState<JoinRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionTarget, setActionTarget] = useState<Team | null>(null);
   const [performing, setPerforming] = useState(false);
   const [activeTab, setActiveTab] = useState("teams");
+  const [approving, setApproving] = useState<Set<string>>(new Set());
 
   const loadTeams = async () => {
     const res = await handleGetMyTeams();
     if (res.success) setTeams(res.data as Team[]);
   };
 
+  const loadRequests = async () => {
+    const res = await handleGetReceivedRequests();
+    if (res.success) setRequests(res.data as JoinRequest[]);
+  };
+
   useEffect(() => {
     (async () => {
-      await loadTeams();
+      if (activeTab === "teams") await loadTeams();
+      else await loadRequests();
       setLoading(false);
     })();
-  }, []);
+  }, [activeTab]);
+
+  const handleApprove = async (requestId: string) => {
+    setApproving((prev) => new Set(prev).add(requestId));
+    await handleApproveRequest(requestId);
+    setRequests((prev) => prev.filter((r) => r._id !== requestId));
+    setApproving((prev) => { const next = new Set(prev); next.delete(requestId); return next; });
+  };
+
+  const handleDeny = async (requestId: string) => {
+    setApproving((prev) => new Set(prev).add(requestId));
+    await handleDenyRequest(requestId);
+    setRequests((prev) => prev.filter((r) => r._id !== requestId));
+    setApproving((prev) => { const next = new Set(prev); next.delete(requestId); return next; });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -184,13 +217,50 @@ export default function MyTeamsPage() {
               </div>
             )
           ) : (
-            <div className="flex items-center justify-center rounded-2xl bg-white py-20 shadow-md">
-              <div className="text-center">
-                <Users className="mx-auto h-14 w-14 text-gray-300" />
-                <h2 className="mt-5 text-2xl font-bold text-gray-900">No Join Requests</h2>
-                <p className="mt-2 text-gray-500">You don&apos;t have any pending team requests.</p>
+            requests.length === 0 ? (
+              <div className="flex items-center justify-center rounded-2xl bg-white py-20 shadow-md">
+                <div className="text-center">
+                  <Users className="mx-auto h-14 w-14 text-gray-300" />
+                  <h2 className="mt-5 text-2xl font-bold text-gray-900">No Join Requests</h2>
+                  <p className="mt-2 text-gray-500">You don&apos;t have any pending team requests.</p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                {requests.map((req) => (
+                  <div key={req._id} className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
+                        {req.senderName.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="text-base font-semibold text-gray-900">{req.senderName}</h3>
+                        <p className="text-sm text-gray-500">wants to join <strong>{req.teamName}</strong></p>
+                        {req.message && <p className="mt-1 text-xs text-gray-400">"{req.message}"</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleApprove(req._id)}
+                        disabled={approving.has(req._id)}
+                        className="flex items-center gap-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50"
+                      >
+                        <Check className="h-4 w-4" />
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleDeny(req._id)}
+                        disabled={approving.has(req._id)}
+                        className="flex items-center gap-1 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                      >
+                        <X className="h-4 w-4" />
+                        Deny
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
           )}
         </div>
       </div>
