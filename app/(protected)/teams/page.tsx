@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Users, X, Trash2 } from "lucide-react";
 import { getTeams, type Team } from "@/lib/api/team";
 import { handleJoinTeam, handleGetMyTeams, handleDeleteTeam, handleGetSentRequests, handleLeaveTeam, handleCancelJoinRequest } from "@/lib/actions/team-action";
+import { SkeletonCard } from "@/app/_components/Skeleton";
 import { useUser } from "@/context/UserContext";
 
 export default function TeamsPage() {
@@ -205,18 +206,7 @@ export default function TeamsPage() {
       <div className="mx-auto max-w-full px-4 py-8 md:px-6">
         {loading ? (
           <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex animate-pulse items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-gray-200" />
-                  <div className="space-y-2">
-                    <div className="h-4 w-32 rounded bg-gray-200" />
-                    <div className="h-3 w-20 rounded bg-gray-200" />
-                  </div>
-                </div>
-                <div className="h-8 w-14 rounded bg-gray-200" />
-              </div>
-            ))}
+            {[1, 2, 3, 4, 5].map((i) => <SkeletonCard key={i} />)}
           </div>
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border bg-white py-20 text-center shadow-sm">

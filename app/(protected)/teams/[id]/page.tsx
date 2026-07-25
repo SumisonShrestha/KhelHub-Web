@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Users, Phone } from "lucide-react";
+import { Skeleton } from "@/app/_components/Skeleton";
 import { getTeamById, type Team } from "@/lib/api/team";
 
 export default function TeamDetailPage() {
@@ -21,10 +22,16 @@ export default function TeamDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <div className="flex items-center gap-3 text-gray-400">
-          <svg className="h-6 w-6 animate-spin" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
-          Loading team...
+      <div className="min-h-screen bg-black">
+        <div className="mx-auto max-w-2xl px-4 py-12 md:px-6">
+          <Skeleton className="mb-6 h-4 w-16" />
+          <Skeleton className="h-32 w-full" />
+          <div className="mt-6 space-y-4">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-64" />
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-40" />
+          </div>
         </div>
       </div>
     );

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MapPin, Star, X, Loader2, AlertCircle } from "lucide-react";
+import { MapPin, Star, X, AlertCircle } from "lucide-react";
+import { SkeletonVenueCard } from "@/app/_components/Skeleton";
 import { getVenues, type Venue } from "@/lib/api/venue";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=800";
@@ -52,9 +53,8 @@ export default function SearchResults({ query, onClear }: Props) {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-          <Loader2 size={32} className="animate-spin mb-3" />
-          <p className="text-sm">Searching venues…</p>
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => <SkeletonVenueCard key={i} />)}
         </div>
       ) : error ? (
         <div className="flex flex-col items-center justify-center py-20 text-red-500">

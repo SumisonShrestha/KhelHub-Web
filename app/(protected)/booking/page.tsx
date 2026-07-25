@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { SkeletonBookingCard } from "@/app/_components/Skeleton";
 import Link from "next/link";
 import { CalendarDays, Clock, MapPin, Star, ArrowLeft, Check, Calendar, MapPinned, X, Banknote, Landmark } from "lucide-react";
 import { getVenueById, type Venue } from "@/lib/api/venue";
@@ -190,15 +191,7 @@ export default function BookingPage() {
         <div className="mx-auto max-w-5xl px-4 py-8 md:px-6">
           {loadingBookings ? (
             <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex animate-pulse items-center rounded-2xl border border-gray-200 bg-white p-5">
-                  <div className="h-14 w-14 rounded-xl bg-gray-200" />
-                  <div className="ml-4 flex-1 space-y-2">
-                    <div className="h-4 w-40 rounded bg-gray-200" />
-                    <div className="h-3 w-24 rounded bg-gray-200" />
-                  </div>
-                </div>
-              ))}
+              {[1, 2, 3].map((i) => <SkeletonBookingCard key={i} />)}
             </div>
           ) : (
             <div className="space-y-4">
