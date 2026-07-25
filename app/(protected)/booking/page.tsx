@@ -139,6 +139,8 @@ export default function BookingPage() {
       timeSlot,
       duration,
       totalPrice: venue.pricePerHour * duration,
+      fullName: fullName.trim(),
+      phone: phone.trim(),
     };
 
     if (paymentMethod === "khalti") {
