@@ -25,14 +25,14 @@ export async function handleCreateTeam(data: { name: string; description?: strin
   }
 }
 
-export async function handleJoinTeam(teamId: string, senderName: string, message?: string) {
+export async function handleJoinTeam(teamId: string, senderName: string, phone: string) {
   try {
     const token = await getTokenCookie();
     if (!token) return { success: false, message: "Not authenticated" };
 
     const res = await axios.post(
       `${BASE_URL}/api/v1/teams/${teamId}/join`,
-      { senderName, message },
+      { senderName, phone },
       { headers: { Authorization: `Bearer ${token}` } }
     );
 

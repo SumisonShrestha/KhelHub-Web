@@ -7,7 +7,6 @@ import { handleCreateTeam } from "@/lib/actions/team-action";
 import Link from "next/link";
 
 const SKILL_LEVELS = ["Beginner", "Intermediate", "Advanced", "Professional"] as const;
-const AGE_GROUPS = ["Under 18", "18-24", "25-34", "35-44", "45+", "All ages"] as const;
 
 export default function CreateTeamPage() {
   const router = useRouter();
@@ -16,7 +15,8 @@ export default function CreateTeamPage() {
   const [location, setLocation] = useState("");
   const [preferredVenue, setPreferredVenue] = useState("");
   const [skillLevel, setSkillLevel] = useState<string | null>(null);
-  const [ageGroup, setAgeGroup] = useState<string | null>(null);
+  const [phone, setPhone] = useState("");
+  const [phoneErr, setPhoneErr] = useState("");
   const [maxPlayers, setMaxPlayers] = useState(1);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,13 +25,14 @@ export default function CreateTeamPage() {
     setSkillLevel((prev) => (prev === level ? null : level));
   };
 
-  const toggleAgeGroup = (group: string) => {
-    setAgeGroup((prev) => (prev === group ? null : group));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !phone.trim()) return;
+    if (!/^\d{10}$/.test(phone.trim())) {
+      setPhoneErr("Phone number must be exactly 10 digits");
+      return;
+    }
+    setPhoneErr("");
 
     setCreating(true);
     setError(null);
@@ -42,8 +43,8 @@ export default function CreateTeamPage() {
       location: location.trim(),
       level: skillLevel || undefined,
       maxPlayers,
+      phone: phone.trim(),
       preferredVenue: preferredVenue || undefined,
-      ageGroup: ageGroup || undefined,
     });
 
     if (result.success) {
@@ -110,18 +111,14 @@ export default function CreateTeamPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">Preferred Venue</label>
-              <select
+              <input
+                type="text"
                 value={preferredVenue}
                 onChange={(e) => setPreferredVenue(e.target.value)}
+                placeholder="e.g. Futsal Arena, Sports Complex"
                 className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">No specific venue</option>
-                <option value="Futsal Arena">Futsal Arena</option>
-                <option value="Sports Complex">Sports Complex</option>
-                <option value="Community Center">Community Center</option>
-                <option value="School Field">School Field</option>
-              </select>
-              <p className="mt-1 text-xs text-gray-400">Optional: Select where your team usually plays</p>
+              />
+              <p className="mt-1 text-xs text-gray-400">Optional: Where does your team usually play?</p>
             </div>
 
             <div>
@@ -147,25 +144,18 @@ export default function CreateTeamPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Age Group</label>
-              <p className="mt-0.5 text-xs text-gray-400">Optional</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {AGE_GROUPS.map((group) => (
-                  <button
-                    key={group}
-                    type="button"
-                    onClick={() => toggleAgeGroup(group)}
-                    className={`rounded-xl border px-4 py-2 text-sm font-medium transition ${
-                      ageGroup === group
-                        ? "border-blue-600 bg-blue-600 text-white"
-                        : "border-gray-300 bg-white text-gray-600 hover:border-gray-400 hover:bg-gray-50"
-                    }`}
-                  >
-                    {group}
-                  </button>
-                ))}
-              </div>
-              <p className="mt-1 text-xs text-gray-400">Click a selected button to deselect it</p>
+              <label className="block text-sm font-medium text-gray-700">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => { setPhone(e.target.value); setPhoneErr(""); }}
+                placeholder="e.g. 9800000000"
+                required
+                className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {phoneErr && <p className="mt-1 text-xs text-red-500">{phoneErr}</p>}
             </div>
 
             <div>
@@ -194,7 +184,7 @@ export default function CreateTeamPage() {
               </Link>
               <button
                 type="submit"
-                disabled={creating || !name.trim()}
+                disabled={creating || !name.trim() || !/^\d{10}$/.test(phone.trim())}
                 className="flex-1 rounded-xl bg-[#121A2A] px-4 py-3 text-sm font-semibold text-white shadow transition hover:shadow-lg disabled:opacity-50"
               >
                 {creating ? "Creating..." : "Create Team"}

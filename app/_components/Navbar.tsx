@@ -134,6 +134,40 @@ export default function Navbar() {
           </Link>
           {user ? (
             <>
+              <div className="relative" ref={dropRef}>
+                <button onClick={() => setDropOpen(!dropOpen)} className="flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">
+                  {user.profilePicture ? (
+                    <img src={user.profilePicture} alt="" className="h-6 w-6 rounded-full object-cover" />
+                  ) : (
+                    <User className="h-4 w-4" />
+                  )}
+                  {user.firstName || user.username || "Dashboard"}
+                  <ChevronDown className={`h-3.5 w-3.5 transition ${dropOpen ? "rotate-180" : ""}`} />
+                </button>
+                {dropOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-white/10 bg-black py-2 shadow-2xl">
+                    <Link href="/profile" onClick={() => setDropOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
+                      <UserCircle className="h-4 w-4" />
+                      Profile
+                    </Link>
+                    <Link href="/booking" onClick={() => setDropOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
+                      <Calendar className="h-4 w-4" />
+                      Bookings
+                    </Link>
+                    {user?.role === "owner" && (
+                      <Link href="/owner" onClick={() => setDropOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
+                        <Building2 className="h-4 w-4" />
+                        Owner Dashboard
+                      </Link>
+                    )}
+                    <hr className="my-1 border-white/10" />
+                    <button onClick={doLogout} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
               <div className="relative" ref={notifRef}>
                 <button onClick={openNotif} className="relative rounded-full p-2 text-white/70 transition hover:bg-white/10 hover:text-white">
                   <Bell className="h-5 w-5" />
@@ -178,40 +212,6 @@ export default function Navbar() {
                         ))}
                       </div>
                     )}
-                  </div>
-                )}
-              </div>
-              <div className="relative" ref={dropRef}>
-                <button onClick={() => setDropOpen(!dropOpen)} className="flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">
-                  {user.profilePicture ? (
-                    <img src={user.profilePicture} alt="" className="h-6 w-6 rounded-full object-cover" />
-                  ) : (
-                    <User className="h-4 w-4" />
-                  )}
-                  {user.firstName || user.username || "Dashboard"}
-                  <ChevronDown className={`h-3.5 w-3.5 transition ${dropOpen ? "rotate-180" : ""}`} />
-                </button>
-                {dropOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-white/10 bg-black py-2 shadow-2xl">
-                    <Link href="/profile" onClick={() => setDropOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
-                      <UserCircle className="h-4 w-4" />
-                      Profile
-                    </Link>
-                    <Link href="/booking" onClick={() => setDropOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
-                      <Calendar className="h-4 w-4" />
-                      Bookings
-                    </Link>
-                    {user?.role === "owner" && (
-                      <Link href="/owner" onClick={() => setDropOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
-                        <Building2 className="h-4 w-4" />
-                        Owner Dashboard
-                      </Link>
-                    )}
-                    <hr className="my-1 border-white/10" />
-                    <button onClick={doLogout} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
-                      <LogOut className="h-4 w-4" />
-                      Sign Out
-                    </button>
                   </div>
                 )}
               </div>

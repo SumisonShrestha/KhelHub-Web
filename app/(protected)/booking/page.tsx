@@ -63,6 +63,10 @@ export default function BookingPage() {
   const openConfirmModal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!venue || !date || !timeSlot) return;
+    if (!fullName.trim() || !/^\d{10}$/.test(phone.trim())) {
+      setError("Phone number must be exactly 10 digits");
+      return;
+    }
     setShowConfirmModal(true);
   };
 
@@ -125,6 +129,10 @@ export default function BookingPage() {
 
   const handleConfirm = async () => {
     if (!venue || !fullName.trim() || !phone.trim() || !paymentMethod || !date || !timeSlot) return;
+    if (!/^\d{10}$/.test(phone.trim())) {
+      setError("Phone number must be exactly 10 digits");
+      return;
+    }
 
     setSubmitting(true);
     setError(null);
@@ -627,7 +635,7 @@ export default function BookingPage() {
               </button>
               <button
                 onClick={handleConfirm}
-                disabled={submitting || !fullName.trim() || !phone.trim() || !paymentMethod}
+                disabled={submitting || !fullName.trim() || !/^\d{10}$/.test(phone.trim()) || !paymentMethod}
                 className="flex-1 rounded-lg bg-[#121A2A] py-2.5 text-xs font-semibold text-white shadow transition hover:shadow-lg disabled:opacity-50"
               >
                 {submitting ? "Booking..." : `Confirm • Rs ${discountTotal.toLocaleString()}`}

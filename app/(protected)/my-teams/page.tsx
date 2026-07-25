@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Home, LogOut, Trash2, Check, X } from "lucide-react";
+import { Users, Home, LogOut, Trash2, Check, X, AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { handleDeleteTeam, handleGetMyTeams, handleGetReceivedRequests, handleApproveRequest, handleDenyRequest } from "@/lib/actions/team-action";
@@ -16,7 +16,7 @@ interface JoinRequest {
   teamName: string;
   senderId: string;
   senderName: string;
-  message?: string;
+  phone: string;
   status: "pending" | "approved" | "denied";
   createdAt: string;
 }
@@ -31,6 +31,7 @@ export default function MyTeamsPage() {
   const [performing, setPerforming] = useState(false);
   const [activeTab, setActiveTab] = useState("teams");
   const [approving, setApproving] = useState<Set<string>>(new Set());
+  const [confirmReq, setConfirmReq] = useState<{ requestId: string; action: "approve" | "deny" } | null>(null);
 
   const loadTeams = async () => {
     const res = await handleGetMyTeams();
@@ -55,6 +56,7 @@ export default function MyTeamsPage() {
     await handleApproveRequest(requestId);
     setRequests((prev) => prev.filter((r) => r._id !== requestId));
     setApproving((prev) => { const next = new Set(prev); next.delete(requestId); return next; });
+    setConfirmReq(null);
   };
 
   const handleDeny = async (requestId: string) => {
@@ -62,6 +64,7 @@ export default function MyTeamsPage() {
     await handleDenyRequest(requestId);
     setRequests((prev) => prev.filter((r) => r._id !== requestId));
     setApproving((prev) => { const next = new Set(prev); next.delete(requestId); return next; });
+    setConfirmReq(null);
   };
 
   return (
@@ -236,12 +239,12 @@ export default function MyTeamsPage() {
                       <div>
                         <h3 className="text-base font-semibold text-gray-900">{req.senderName}</h3>
                         <p className="text-sm text-gray-500">wants to join <strong>{req.teamName}</strong></p>
-                        {req.message && <p className="mt-1 text-xs text-gray-400">"{req.message}"</p>}
+                        {req.phone && <p className="mt-1 text-xs text-gray-400">Phone: {req.phone}</p>}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleApprove(req._id)}
+                        onClick={() => setConfirmReq({ requestId: req._id, action: "approve" })}
                         disabled={approving.has(req._id)}
                         className="flex items-center gap-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50"
                       >
@@ -249,7 +252,7 @@ export default function MyTeamsPage() {
                         Approve
                       </button>
                       <button
-                        onClick={() => handleDeny(req._id)}
+                        onClick={() => setConfirmReq({ requestId: req._id, action: "deny" })}
                         disabled={approving.has(req._id)}
                         className="flex items-center gap-1 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                       >
@@ -305,6 +308,52 @@ export default function MyTeamsPage() {
                 className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
               >
                 {performing ? "Processing..." : actionTarget.createdBy === (user as any)?._id ? "Yes, Cancel" : "Yes, Leave"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmReq && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center gap-3 border-b border-gray-100 px-6 py-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100">
+                <AlertCircle size={16} className="text-blue-600" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                {confirmReq.action === "approve" ? "Approve Request" : "Deny Request"}
+              </h2>
+            </div>
+            <div className="px-6 py-5">
+              <p className="text-sm text-gray-600">
+                {confirmReq.action === "approve"
+                  ? "Approve this join request? The user will be added as a team member."
+                  : "Deny this join request? The user will be notified."}
+              </p>
+            </div>
+            <div className="flex gap-3 border-t border-gray-100 px-6 py-4">
+              <button
+                onClick={() => setConfirmReq(null)}
+                className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() =>
+                  confirmReq.action === "approve"
+                    ? handleApprove(confirmReq.requestId)
+                    : handleDeny(confirmReq.requestId)
+                }
+                disabled={approving.has(confirmReq.requestId)}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium text-white disabled:opacity-60 transition-colors ${
+                  confirmReq.action === "approve"
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-red-600 hover:bg-red-700"
+                }`}
+              >
+                {approving.has(confirmReq.requestId) && <Loader2 size={14} className="animate-spin" />}
+                {confirmReq.action === "approve" ? "Approve" : "Deny"}
               </button>
             </div>
           </div>
