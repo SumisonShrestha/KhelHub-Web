@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Users, X, Trash2 } from "lucide-react";
 import { getTeams, type Team } from "@/lib/api/team";
-import { handleJoinTeam, handleGetMyTeams, handleDeleteTeam, handleGetSentRequests, handleLeaveTeam } from "@/lib/actions/team-action";
+import { handleJoinTeam, handleGetMyTeams, handleDeleteTeam, handleGetSentRequests, handleLeaveTeam, handleCancelJoinRequest } from "@/lib/actions/team-action";
 import { useUser } from "@/context/UserContext";
 
 export default function TeamsPage() {
@@ -15,7 +15,8 @@ export default function TeamsPage() {
   const [search, setSearch] = useState("");
   const [joining, setJoining] = useState<Set<string>>(new Set());
   const [joinedTeams, setJoinedTeams] = useState<Set<string>>(new Set());
-  const [requestedTeams, setRequestedTeams] = useState<Set<string>>(new Set());
+  const [requestedTeams, setRequestedTeams] = useState<Map<string, string>>(new Map());
+  const [cancellingReq, setCancellingReq] = useState<Set<string>>(new Set());
   const [joinTarget, setJoinTarget] = useState<Team | null>(null);
   const [joinName, setJoinName] = useState("");
   const [joinMsg, setJoinMsg] = useState("");
@@ -35,7 +36,7 @@ export default function TeamsPage() {
         const sentRes = await handleGetSentRequests();
         if (sentRes.success) {
           const pending = sentRes.data.filter((r: any) => r.status === "pending");
-          setRequestedTeams(new Set(pending.map((r: any) => r.teamId)));
+          setRequestedTeams(new Map(pending.map((r: any) => [r.teamId, r._id])));
         }
       } catch {
         // not authenticated, that's ok
@@ -57,7 +58,7 @@ export default function TeamsPage() {
         const sentRes = await handleGetSentRequests();
         if (sentRes.success) {
           const pending = sentRes.data.filter((r: any) => r.status === "pending");
-          setRequestedTeams(new Set(pending.map((r: any) => r.teamId)));
+          setRequestedTeams(new Map(pending.map((r: any) => [r.teamId, r._id])));
         }
       }
     };
@@ -76,9 +77,16 @@ export default function TeamsPage() {
     const res = await handleLeaveTeam(teamId);
     if (res.success) {
       setJoinedTeams((prev) => { const next = new Set(prev); next.delete(teamId); return next; });
-      setRequestedTeams((prev) => { const next = new Set(prev); next.delete(teamId); return next; });
+      setRequestedTeams((prev) => { const next = new Map(prev); next.delete(teamId); return next; });
     }
     setLeaving((prev) => { const next = new Set(prev); next.delete(teamId); return next; });
+  };
+
+  const handleCancelRequestAction = async (requestId: string, teamId: string) => {
+    setCancellingReq((prev) => new Set(prev).add(requestId));
+    await handleCancelJoinRequest(requestId);
+    setRequestedTeams((prev) => { const next = new Map(prev); next.delete(teamId); return next; });
+    setCancellingReq((prev) => { const next = new Set(prev); next.delete(requestId); return next; });
   };
 
   const handleCancelTeam = async (teamId: string) => {
@@ -97,7 +105,7 @@ export default function TeamsPage() {
       const sentRes = await handleGetSentRequests();
       if (sentRes.success) {
         const pending = sentRes.data.filter((r: any) => r.status === "pending");
-        setRequestedTeams(new Set(pending.map((r: any) => r.teamId)));
+        setRequestedTeams(new Map(pending.map((r: any) => [r.teamId, r._id])));
       }
     }
     setJoining((prev) => { const next = new Set(prev); next.delete(joinTarget._id); return next; });
@@ -272,9 +280,13 @@ export default function TeamsPage() {
                             {leaving.has(team._id) ? "Leaving..." : "Leave"}
                           </button>
                         ) : requestedTeams.has(team._id) ? (
-                          <span className="rounded-lg border border-yellow-500 bg-yellow-50 px-5 py-2 text-sm font-medium text-yellow-600">
-                            Requested
-                          </span>
+                          <button
+                            onClick={() => handleCancelRequestAction(requestedTeams.get(team._id)!, team._id)}
+                            disabled={cancellingReq.has(requestedTeams.get(team._id)!)}
+                            className="flex items-center gap-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:opacity-50"
+                          >
+                            {cancellingReq.has(requestedTeams.get(team._id)!) ? "Cancelling..." : "Cancel Request"}
+                          </button>
                         ) : (
                           <button
                             onClick={() => openJoinModal(team)}

@@ -7,15 +7,11 @@ import { LoginFormData, loginSchema } from "@/app/(auth)/_components/schema";
 import Link from "next/link";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { handleLoginUser } from "@/lib/actions/auth-action";
-import { useUser } from "@/context/UserContext";
 
 export default function LoginFormZod() {
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const { setUser } = useUser();
-  const router = useRouter();
 
   const {
     register,
@@ -34,14 +30,13 @@ export default function LoginFormZod() {
     setApiError(null);
     const result = await handleLoginUser(data);
     if (result.success) {
-      setUser(result.data?.user);
       const role = result.data?.user?.role;
       if (role === "admin") {
-        router.replace("/admin");
+        window.location.href = "/admin";
       } else if (role === "owner") {
-        router.replace("/owner");
+        window.location.href = "/owner";
       } else {
-        router.replace("/dashboard");
+        window.location.href = "/dashboard";
       }
     } else {
       setApiError(result.message);
