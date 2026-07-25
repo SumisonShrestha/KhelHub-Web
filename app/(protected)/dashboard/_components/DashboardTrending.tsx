@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { MapPin, Star, Flame } from "lucide-react";
+import { Skeleton } from "@/app/_components/Skeleton";
 import { getVenues, type Venue } from "@/lib/api/venue";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=800";
@@ -27,19 +28,19 @@ export default function DashboardTrending() {
         </div>
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="animate-pulse overflow-hidden rounded-2xl border bg-white shadow-sm">
-              <div className="h-40 w-full bg-gray-200" />
+            <div key={i} className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+              <Skeleton className="h-40 w-full rounded-none" />
               <div className="space-y-2 p-4">
-                <div className="h-5 w-3/4 rounded bg-gray-200" />
-                <div className="h-4 w-1/2 rounded bg-gray-200" />
-                <div className="h-4 w-full rounded bg-gray-200" />
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-full" />
                 <div className="flex gap-2">
-                  <div className="h-5 w-14 rounded bg-gray-200" />
-                  <div className="h-5 w-14 rounded bg-gray-200" />
+                  <Skeleton className="h-5 w-14" />
+                  <Skeleton className="h-5 w-14" />
                 </div>
                 <div className="flex items-center justify-between pt-1">
-                  <div className="h-7 w-16 rounded bg-gray-200" />
-                  <div className="h-9 w-20 rounded-lg bg-gray-200" />
+                  <Skeleton className="h-7 w-16" />
+                  <Skeleton className="h-9 w-20 rounded-lg" />
                 </div>
               </div>
             </div>

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { handleDeleteTeam, handleGetMyTeams, handleGetReceivedRequests, handleApproveRequest, handleDenyRequest } from "@/lib/actions/team-action";
 import { getToken } from "@/lib/actions/auth-action";
 import { leaveTeam } from "@/lib/api/team";
+import { SkeletonCard } from "@/app/_components/Skeleton";
 import { useUser } from "@/context/UserContext";
 import type { Team } from "@/lib/api/team";
 
@@ -116,18 +117,7 @@ export default function MyTeamsPage() {
         <div className="mt-8">
           {loading ? (
             <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex animate-pulse items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-gray-200" />
-                    <div className="space-y-2">
-                      <div className="h-4 w-32 rounded bg-gray-200" />
-                      <div className="h-3 w-20 rounded bg-gray-200" />
-                    </div>
-                  </div>
-                  <div className="h-8 w-14 rounded bg-gray-200" />
-                </div>
-              ))}
+              {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
             </div>
           ) : activeTab === "teams" ? (
             teams.length === 0 ? (

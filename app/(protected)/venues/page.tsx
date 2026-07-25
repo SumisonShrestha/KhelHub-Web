@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { SkeletonVenueCard } from "@/app/_components/Skeleton";
 import { useSearchParams } from "next/navigation";
 import Hero from "./components/Hero";
 import FilterChips from "./components/FilterChips";
@@ -118,21 +119,7 @@ function VenuesContent() {
 
         {loading ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="animate-pulse overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-                <div className="h-52 w-full bg-gray-200" />
-                <div className="space-y-3 p-4">
-                  <div className="h-5 w-3/4 rounded bg-gray-200" />
-                  <div className="h-4 w-1/2 rounded bg-gray-200" />
-                  <div className="h-4 w-1/3 rounded bg-gray-200" />
-                  <div className="h-2 w-full rounded-full bg-gray-200" />
-                  <div className="flex gap-2">
-                    <div className="h-5 w-14 rounded bg-gray-200" />
-                    <div className="h-5 w-14 rounded bg-gray-200" />
-                  </div>
-                </div>
-              </div>
-            ))}
+            {[1, 2, 3, 4, 5, 6].map((i) => <SkeletonVenueCard key={i} />)}
           </div>
         ) : (
           <VenueGrid

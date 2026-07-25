@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { Skeleton } from "@/app/_components/Skeleton";
 import { MapPin, Star, ArrowLeft, Calendar, Clock, Building2, Check, Phone, Mail, User, Clock3, Percent, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { getVenueById, type Venue } from "@/lib/api/venue";
@@ -26,11 +27,11 @@ export default function VenueDetailPage() {
     return (
       <div className="min-h-screen bg-black">
         <div className="mx-auto max-w-4xl px-4 py-12 md:px-6">
-          <div className="animate-pulse space-y-6">
-            <div className="h-64 w-full rounded-3xl bg-gray-800" />
-            <div className="h-8 w-2/3 rounded bg-gray-800" />
-            <div className="h-4 w-1/3 rounded bg-gray-800" />
-            <div className="h-20 w-full rounded bg-gray-800" />
+          <div className="space-y-6">
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-8 w-2/3" />
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-20 w-full" />
           </div>
         </div>
       </div>
