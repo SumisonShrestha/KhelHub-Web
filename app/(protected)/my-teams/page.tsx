@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Home, LogOut, X, Trash2, Search, ChevronRight } from "lucide-react";
+import { Users, Home, LogOut, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { handleCreateTeam, handleDeleteTeam, handleGetMyTeams } from "@/lib/actions/team-action";
+import { handleDeleteTeam, handleGetMyTeams } from "@/lib/actions/team-action";
 import { getToken } from "@/lib/actions/auth-action";
 import { leaveTeam } from "@/lib/api/team";
 import { useUser } from "@/context/UserContext";
@@ -17,10 +17,6 @@ export default function MyTeamsPage() {
   const [loading, setLoading] = useState(true);
   const [actionTarget, setActionTarget] = useState<Team | null>(null);
   const [performing, setPerforming] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [form, setForm] = useState({ name: "", location: "", level: "", sport: "", maxPlayers: 0, phone: "" });
-  const [creating, setCreating] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("teams");
 
   const loadTeams = async () => {
@@ -34,25 +30,6 @@ export default function MyTeamsPage() {
       setLoading(false);
     })();
   }, []);
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.name.trim() || !form.location.trim() || !form.phone.trim()) return;
-
-    setCreating(true);
-    setFormError(null);
-
-    const result = await handleCreateTeam(form);
-    if (result.success) {
-      setShowCreateModal(false);
-      setForm({ name: "", location: "", level: "", sport: "", maxPlayers: 0, phone: "" });
-      await loadTeams();
-    } else {
-      setFormError(result.message);
-    }
-
-    setCreating(false);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -135,12 +112,12 @@ export default function MyTeamsPage() {
                   >
                     Browse Teams
                   </Link>
-                  <button
-                    onClick={() => setShowCreateModal(true)}
+                  <Link
+                    href="/teams/create"
                     className="rounded-lg bg-gradient-to-r from-blue-600 to-teal-500 px-6 py-3 font-semibold text-white shadow transition hover:opacity-90"
                   >
                     Create Team
-                  </button>
+                  </Link>
                 </div>
               </div>
             ) : (
@@ -218,116 +195,6 @@ export default function MyTeamsPage() {
         </div>
       </div>
 
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">Create Team</h2>
-              <button onClick={() => setShowCreateModal(false)} className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreate} className="mt-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Team Name</label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Enter team name"
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Sport</label>
-                <select
-                  value={form.sport}
-                  onChange={(e) => setForm({ ...form, sport: e.target.value })}
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select sport</option>
-                  <option value="Futsal">Futsal</option>
-                  <option value="Basketball">Basketball</option>
-                  <option value="Cricket">Cricket</option>
-                  <option value="Football">Football</option>
-                  <option value="Badminton">Badminton</option>
-                  <option value="Tennis">Tennis</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Location</label>
-                <input
-                  type="text"
-                  value={form.location}
-                  onChange={(e) => setForm({ ...form, location: e.target.value })}
-                  placeholder="City or area"
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="e.g. 9841234567"
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Players Needed (max 10)</label>
-                <select
-                  value={form.maxPlayers}
-                  onChange={(e) => setForm({ ...form, maxPlayers: Number(e.target.value) })}
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select players needed</option>
-                  {[2,3,4,5,6,7,8,9,10].map((n) => (
-                    <option key={n} value={n}>{n} players</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Level</label>
-                <select
-                  value={form.level}
-                  onChange={(e) => setForm({ ...form, level: e.target.value })}
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select level</option>
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                </select>
-              </div>
-
-              {formError && (
-                <p className="text-sm text-red-600">{formError}</p>
-              )}
-
-              <button
-                type="submit"
-                disabled={creating || !form.name.trim() || !form.location.trim() || !form.sport || !form.level || !form.maxPlayers || !form.phone.trim()}
-                className="w-full rounded-xl bg-[#121A2A] py-3 font-semibold text-white shadow transition hover:shadow-lg disabled:opacity-50"
-              >
-                {creating ? "Creating..." : "Create Team"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
       {actionTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
@@ -359,7 +226,7 @@ export default function MyTeamsPage() {
                     } else {
                       await leaveTeam(token, actionTarget._id);
                     }
-                    setTeams((prev) => prev.filter((t) => t._id !== actionTarget._id));
+                    await loadTeams();
                   } catch {}
                   setPerforming(false);
                   setActionTarget(null);
