@@ -150,9 +150,7 @@ export default function TeamsPage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-5xl px-4 py-8 md:px-6">
-        <h2 className="mb-6 text-xl font-bold text-gray-900">All Teams</h2>
-
+      <div className="mx-auto max-w-full px-4 py-8 md:px-6">
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -187,7 +185,8 @@ export default function TeamsPage() {
               return (
                 <div
                   key={team._id}
-                  className="group flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4 transition-all hover:border-blue-200 hover:shadow-md"
+                  onClick={() => router.push(`/teams/${team._id}`)}
+                  className="flex cursor-pointer items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4 transition-all hover:border-blue-300 hover:shadow-lg"
                 >
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#121A2A] text-sm font-bold text-white">
@@ -201,16 +200,10 @@ export default function TeamsPage() {
                       <p className="mt-0.5 text-sm text-gray-500">
                         {team.sport}
                       </p>
-                      <button
-                        onClick={() => router.push(`/teams/${team._id}`)}
-                        className="mt-1 text-xs font-medium text-blue-600 hover:underline"
-                      >
-                        Details →
-                      </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                     <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                       {isNaN(team.maxPlayers - team.members) ? 0 : team.maxPlayers - team.members} remaining
                     </span>
@@ -225,7 +218,7 @@ export default function TeamsPage() {
                     >
                       {team.level}
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                         {team.createdBy === (user as any)?._id && (
                           <button
                             onClick={() => handleCancelTeam(team._id)}
