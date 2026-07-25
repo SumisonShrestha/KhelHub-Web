@@ -7,6 +7,7 @@ import {
     handleAdminGetVenues,
     handleAdminDeleteVenue,
 } from "@/lib/actions/admin-action";
+import DeleteVenueModal from "./DeleteVenueModal";
 
 const DEFAULT_META: PaginationMeta = { page: 1, limit: 10, total: 0, totalPages: 0 };
 
@@ -18,6 +19,8 @@ export default function AdminVenuesClient() {
     const [page, setPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<Venue | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         const t = setTimeout(() => {
@@ -42,9 +45,12 @@ export default function AdminVenuesClient() {
 
     useEffect(() => { fetchVenues(); }, [fetchVenues]);
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this venue?")) return;
-        const result = await handleAdminDeleteVenue(id);
+    const handleDeleteConfirm = async () => {
+        if (!deleteTarget) return;
+        setIsDeleting(true);
+        const result = await handleAdminDeleteVenue(deleteTarget._id);
+        setIsDeleting(false);
+        setDeleteTarget(null);
         if (result.success) {
             if (venues.length === 1 && page > 1) setPage(page - 1);
             else fetchVenues();
@@ -54,7 +60,7 @@ export default function AdminVenuesClient() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="p-6">
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mb-8 flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-600">
@@ -137,7 +143,7 @@ export default function AdminVenuesClient() {
                                                         <Pencil size={14} />
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDelete(venue._id)}
+                                                        onClick={() => setDeleteTarget(venue)}
                                                         className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors"
                                                         title="Delete venue"
                                                     >
@@ -173,6 +179,15 @@ export default function AdminVenuesClient() {
                     )}
                 </div>
             </div>
+
+            {deleteTarget && (
+                <DeleteVenueModal
+                    venue={deleteTarget}
+                    isDeleting={isDeleting}
+                    onConfirm={handleDeleteConfirm}
+                    onClose={() => setDeleteTarget(null)}
+                />
+            )}
         </div>
     );
 }

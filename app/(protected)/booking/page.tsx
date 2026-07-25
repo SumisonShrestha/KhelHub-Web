@@ -64,10 +64,6 @@ export default function BookingPage() {
   const openConfirmModal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!venue || !date || !timeSlot) return;
-    if (!fullName.trim() || !/^\d{10}$/.test(phone.trim())) {
-      setError("Phone number must be exactly 10 digits");
-      return;
-    }
     setShowConfirmModal(true);
   };
 
@@ -130,10 +126,6 @@ export default function BookingPage() {
 
   const handleConfirm = async () => {
     if (!venue || !fullName.trim() || !phone.trim() || !paymentMethod || !date || !timeSlot) return;
-    if (!/^\d{10}$/.test(phone.trim())) {
-      setError("Phone number must be exactly 10 digits");
-      return;
-    }
 
     setSubmitting(true);
     setError(null);
@@ -201,7 +193,8 @@ export default function BookingPage() {
                     <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#121A2A] text-white">
                       <MapPinned className="h-6 w-6" />
                     </div>
-                    <div>
+              <div>
+                <p className="mb-1.5 text-xs font-medium text-gray-700">Payment Method</p>
                       <h3 className="font-semibold text-gray-900">{b.venueName}</h3>
                       <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
                         <span className="flex items-center gap-1">
@@ -392,42 +385,44 @@ export default function BookingPage() {
 
         <form onSubmit={openConfirmModal} className="mt-8">
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
-                <CalendarDays className="h-5 w-5 text-blue-600" />
-                Date & Time
-              </h2>
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
+                  <CalendarDays className="h-5 w-5 text-blue-600" />
+                  Date & Time
+                </h2>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Date</label>
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    min={today}
-                    required
-                    className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Date</label>
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      min={today}
+                      required
+                      className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Time Slot</label>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    {TIME_SLOTS.map((slot) => (
-                      <button
-                        key={slot}
-                        type="button"
-                        onClick={() => setTimeSlot(slot)}
-                        className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
-                          timeSlot === slot
-                            ? "border-blue-600 bg-blue-50 text-blue-700"
-                            : "border-gray-200 text-gray-600 hover:border-blue-300"
-                        }`}
-                      >
-                        {slot}
-                      </button>
-                    ))}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Time Slot</label>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      {TIME_SLOTS.map((slot) => (
+                        <button
+                          key={slot}
+                          type="button"
+                          onClick={() => setTimeSlot(slot)}
+                          className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                            timeSlot === slot
+                              ? "border-blue-600 bg-blue-50 text-blue-700"
+                              : "border-gray-200 text-gray-600 hover:border-blue-300"
+                          }`}
+                        >
+                          {slot}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -565,16 +560,14 @@ export default function BookingPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700">Phone Number</label>
-                  <div className="mt-1 flex gap-1.5">
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="98XXXXXXXX"
-                      maxLength={10}
-                      className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="98XXXXXXXX"
+                    maxLength={10}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
               </div>
 
