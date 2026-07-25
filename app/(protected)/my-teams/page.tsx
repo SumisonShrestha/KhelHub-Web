@@ -63,14 +63,22 @@ export default function MyTeamsPage() {
         ) : teams.length === 0 ? (
           <div className="rounded-2xl border bg-white py-20 text-center shadow-sm">
             <Users className="mx-auto h-12 w-12 text-gray-300" />
-            <h3 className="mt-4 text-lg font-semibold text-gray-800">No Teams Yet</h3>
-            <p className="mt-1 text-sm text-gray-500">You haven&apos;t joined any teams yet.</p>
-            <Link
-              href="/teams"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#121A2A] px-6 py-3 text-sm font-semibold text-white shadow transition hover:shadow-lg"
-            >
-              Find a Team
-            </Link>
+            <h3 className="mt-4 text-lg font-semibold text-gray-800">You&apos;re not part of any teams yet</h3>
+            <p className="mt-1 text-sm text-gray-500">Join an existing team or create your own</p>
+            <div className="mt-6 flex items-center justify-center gap-4">
+              <Link
+                href="/teams"
+                className="inline-flex items-center gap-2 rounded-full bg-[#121A2A] px-6 py-3 text-sm font-semibold text-white shadow transition hover:shadow-lg"
+              >
+                Browse Teams
+              </Link>
+              <Link
+                href="/teams"
+                className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                Create Team
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">

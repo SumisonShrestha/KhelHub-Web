@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Users, X, Trash2 } from "lucide-react";
+import { Users, X, Trash2 } from "lucide-react";
 import { getTeams, type Team } from "@/lib/api/team";
-import { handleCreateTeam, handleJoinTeam, handleGetMyTeams, handleDeleteTeam } from "@/lib/actions/team-action";
+import { handleJoinTeam, handleGetMyTeams, handleDeleteTeam } from "@/lib/actions/team-action";
 import { useUser } from "@/context/UserContext";
 
 export default function TeamsPage() {
@@ -13,10 +13,6 @@ export default function TeamsPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: "", location: "", level: "", sport: "", maxPlayers: 0, phone: "" });
-  const [creating, setCreating] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
   const [joining, setJoining] = useState<Set<string>>(new Set());
   const [joinedTeams, setJoinedTeams] = useState<Set<string>>(new Set());
   const [joinTarget, setJoinTarget] = useState<Team | null>(null);
@@ -47,28 +43,6 @@ export default function TeamsPage() {
   useEffect(() => {
     loadTeams();
   }, [loadTeams]);
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.name.trim() || !form.location.trim() || !form.phone.trim()) return;
-
-    setCreating(true);
-    setFormError(null);
-
-    const result = await handleCreateTeam(form);
-    if (result.success) {
-      setShowModal(false);
-      setForm({ name: "", location: "", level: "", sport: "", maxPlayers: 0, phone: "" });
-      if (result.data?._id) {
-        setJoinedTeams((prev) => new Set(prev).add(result.data._id));
-      }
-      loadTeams();
-    } else {
-      setFormError(result.message);
-    }
-
-    setCreating(false);
-  };
 
   const openJoinModal = (team: Team) => {
     setJoinTarget(team);
@@ -111,13 +85,7 @@ export default function TeamsPage() {
               <h1 className="text-3xl font-bold md:text-4xl">Teams</h1>
               <p className="mt-1 text-blue-100">Find or create your perfect squad</p>
             </div>
-            <button
-              onClick={() => setShowModal(true)}
-              className="flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-blue-700 shadow-lg transition hover:shadow-xl"
-            >
-              <Plus className="h-4 w-4" />
-              Create Team
-            </button>
+
           </div>
 
           <div className="mx-auto mt-8 max-w-xl">
@@ -136,116 +104,6 @@ export default function TeamsPage() {
           </div>
         </div>
       </section>
-
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">Create Team</h2>
-              <button onClick={() => setShowModal(false)} className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreate} className="mt-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Team Name</label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Enter team name"
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Sport</label>
-                <select
-                  value={form.sport}
-                  onChange={(e) => setForm({ ...form, sport: e.target.value })}
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select sport</option>
-                  <option value="Futsal">Futsal</option>
-                  <option value="Basketball">Basketball</option>
-                  <option value="Cricket">Cricket</option>
-                  <option value="Football">Football</option>
-                  <option value="Badminton">Badminton</option>
-                  <option value="Tennis">Tennis</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Location</label>
-                <input
-                  type="text"
-                  value={form.location}
-                  onChange={(e) => setForm({ ...form, location: e.target.value })}
-                  placeholder="City or area"
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="e.g. 9841234567"
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Players Needed (max 10)</label>
-                <select
-                  value={form.maxPlayers}
-                  onChange={(e) => setForm({ ...form, maxPlayers: Number(e.target.value) })}
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select players needed</option>
-                  {[2,3,4,5,6,7,8,9,10].map((n) => (
-                    <option key={n} value={n}>{n} players</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Level</label>
-                <select
-                  value={form.level}
-                  onChange={(e) => setForm({ ...form, level: e.target.value })}
-                  required
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select level</option>
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                </select>
-              </div>
-
-              {formError && (
-                <p className="text-sm text-red-600">{formError}</p>
-              )}
-
-              <button
-                type="submit"
-                disabled={creating || !form.name.trim() || !form.location.trim() || !form.sport || !form.level || !form.maxPlayers || !form.phone.trim()}
-                className="w-full rounded-xl bg-[#121A2A] py-3 font-semibold text-white shadow transition hover:shadow-lg disabled:opacity-50"
-              >
-                {creating ? "Creating..." : "Create Team"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
       {joinTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
