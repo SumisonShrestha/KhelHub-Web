@@ -6,7 +6,7 @@ export interface Team {
   sport: string;
   name: string;
   location: string;
-  level: "Beginner" | "Intermediate" | "Advanced";
+  level: "Beginner" | "Intermediate" | "Advanced" | "Professional";
   avatar: string;
   members: number;
   maxPlayers: number;
