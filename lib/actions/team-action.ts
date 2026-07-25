@@ -5,7 +5,7 @@ import axios from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export async function handleCreateTeam(data: { name: string; sport?: string; location?: string; level?: string; maxPlayers?: number; phone?: string }) {
+export async function handleCreateTeam(data: { name: string; description?: string; sport?: string; location?: string; level?: string; maxPlayers?: number; phone?: string; preferredVenue?: string; ageGroup?: string }) {
   try {
     const token = await getTokenCookie();
     if (!token) return { success: false, message: "Not authenticated" };
