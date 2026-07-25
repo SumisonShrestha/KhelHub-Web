@@ -14,7 +14,7 @@ export default function TeamsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: "", location: "", level: "Beginner", sport: "Futsal", maxPlayers: 10, phone: "" });
+  const [form, setForm] = useState({ name: "", location: "", level: "", sport: "", maxPlayers: 0, phone: "" });
   const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [joining, setJoining] = useState<Set<string>>(new Set());
@@ -50,7 +50,7 @@ export default function TeamsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim()) return;
+    if (!form.name.trim() || !form.location.trim() || !form.phone.trim()) return;
 
     setCreating(true);
     setFormError(null);
@@ -58,7 +58,7 @@ export default function TeamsPage() {
     const result = await handleCreateTeam(form);
     if (result.success) {
       setShowModal(false);
-      setForm({ name: "", location: "", level: "Beginner", sport: "Futsal", maxPlayers: 10, phone: "" });
+      setForm({ name: "", location: "", level: "", sport: "", maxPlayers: 0, phone: "" });
       if (result.data?._id) {
         setJoinedTeams((prev) => new Set(prev).add(result.data._id));
       }
@@ -165,8 +165,10 @@ export default function TeamsPage() {
                 <select
                   value={form.sport}
                   onChange={(e) => setForm({ ...form, sport: e.target.value })}
+                  required
                   className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                 >
+                  <option value="">Select sport</option>
                   <option value="Futsal">Futsal</option>
                   <option value="Basketball">Basketball</option>
                   <option value="Cricket">Cricket</option>
@@ -183,6 +185,7 @@ export default function TeamsPage() {
                   value={form.location}
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
                   placeholder="City or area"
+                  required
                   className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -193,6 +196,7 @@ export default function TeamsPage() {
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   placeholder="e.g. 9841234567"
+                  required
                   className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -202,8 +206,10 @@ export default function TeamsPage() {
                 <select
                   value={form.maxPlayers}
                   onChange={(e) => setForm({ ...form, maxPlayers: Number(e.target.value) })}
+                  required
                   className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                 >
+                  <option value="">Select players needed</option>
                   {[2,3,4,5,6,7,8,9,10].map((n) => (
                     <option key={n} value={n}>{n} players</option>
                   ))}
@@ -215,8 +221,10 @@ export default function TeamsPage() {
                 <select
                   value={form.level}
                   onChange={(e) => setForm({ ...form, level: e.target.value })}
+                  required
                   className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                 >
+                  <option value="">Select level</option>
                   <option value="Beginner">Beginner</option>
                   <option value="Intermediate">Intermediate</option>
                   <option value="Advanced">Advanced</option>
@@ -229,7 +237,7 @@ export default function TeamsPage() {
 
               <button
                 type="submit"
-                disabled={creating || !form.name.trim()}
+                disabled={creating || !form.name.trim() || !form.location.trim() || !form.sport || !form.level || !form.maxPlayers || !form.phone.trim()}
                 className="w-full rounded-xl bg-[#121A2A] py-3 font-semibold text-white shadow transition hover:shadow-lg disabled:opacity-50"
               >
                 {creating ? "Creating..." : "Create Team"}
