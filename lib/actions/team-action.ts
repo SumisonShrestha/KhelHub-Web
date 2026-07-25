@@ -143,6 +143,23 @@ export async function handleDenyRequest(requestId: string) {
   }
 }
 
+export async function handleCancelJoinRequest(requestId: string) {
+  try {
+    const token = await getTokenCookie();
+    if (!token) return { success: false, message: "Not authenticated" };
+
+    const res = await axios.put(
+      `${BASE_URL}/api/v1/teams/join-requests/${requestId}/cancel`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return { success: true, message: res.data.message };
+  } catch (error: any) {
+    return { success: false, message: error?.response?.data?.message || "Failed to cancel request" };
+  }
+}
+
 export async function handleLeaveTeam(teamId: string) {
   try {
     const token = await getTokenCookie();
