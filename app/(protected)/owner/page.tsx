@@ -32,6 +32,8 @@ interface OwnerBooking {
   duration: number;
   totalPrice: number;
   status: string;
+  fullName: string;
+  phone: string;
   createdAt: string;
 }
 
@@ -290,7 +292,7 @@ export default function OwnerDashboardPage() {
                     <th className="px-4 py-3 font-semibold text-gray-700">Time</th>
                     <th className="px-4 py-3 font-semibold text-gray-700">Duration</th>
                     <th className="px-4 py-3 font-semibold text-gray-700">Amount</th>
-                    <th className="px-4 py-3 font-semibold text-gray-700">Status</th>
+                    <th className="px-4 py-3 font-semibold text-gray-700">Phone</th>
                     <th className="px-4 py-3 font-semibold text-gray-700">Booked At</th>
                   </tr>
                 </thead>
@@ -302,13 +304,7 @@ export default function OwnerDashboardPage() {
                       <td className="px-4 py-3 text-gray-600">{b.timeSlot}</td>
                       <td className="px-4 py-3 text-gray-600">{b.duration} hr{b.duration > 1 ? "s" : ""}</td>
                       <td className="px-4 py-3 font-medium text-gray-900">Rs {b.totalPrice.toLocaleString()}</td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          b.status === "upcoming" ? "bg-green-100 text-green-700"
-                          : b.status === "cancelled" ? "bg-red-100 text-red-700"
-                          : "bg-gray-100 text-gray-700"
-                        }`}>{b.status}</span>
-                      </td>
+                      <td className="px-4 py-3 font-medium text-gray-900">{b.phone}</td>
                       <td className="px-4 py-3 text-gray-500">{new Date(b.createdAt).toLocaleDateString()}</td>
                     </tr>
                   ))}
