@@ -27,7 +27,6 @@ export default function CreateVenuePage() {
     ownerName: "",
     description: "",
     address: "",
-    googleMapsLink: "",
     phone: "",
     email: "",
     city: "Kathmandu",
@@ -79,7 +78,6 @@ export default function CreateVenuePage() {
       fd.append("ownerName", form.ownerName);
       fd.append("phone", form.phone);
       fd.append("email", form.email);
-      fd.append("googleMapsLink", form.googleMapsLink);
       if (form.weekendPrice) fd.append("weekendPrice", form.weekendPrice);
       if (form.nightPrice) fd.append("nightPrice", form.nightPrice);
       if (form.discount) fd.append("discount", form.discount);
@@ -225,17 +223,7 @@ export default function CreateVenuePage() {
                     className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Paste Google Maps link (optional)</label>
-                  <input
-                    type="url"
-                    value={form.googleMapsLink}
-                    onChange={(e) => update("googleMapsLink", e.target.value)}
-                    placeholder="https://maps.google.com/..."
-                    className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <p className="text-xs text-gray-400">This will be used to help players find your venue.</p>
+
               </div>
             </div>
 
@@ -368,7 +356,7 @@ export default function CreateVenuePage() {
 
             <button
               onClick={handleSubmit}
-              disabled={submitting || !form.name || !form.city || !form.standardPrice}
+              disabled={submitting || !form.name || !form.description || !form.address || !form.ownerName || !form.phone || !form.email || !form.standardPrice || !form.openingTime || !form.closingTime}
               className="w-full rounded-xl bg-[#121A2A] py-4 text-lg font-semibold text-white shadow transition hover:shadow-lg disabled:opacity-50"
             >
               {submitting ? "Submitting..." : "Submit Venue"}
