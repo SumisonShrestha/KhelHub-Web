@@ -34,7 +34,8 @@ export default function TeamsPage() {
         }
         const sentRes = await handleGetSentRequests();
         if (sentRes.success) {
-          setRequestedTeams(new Set(sentRes.data.map((r: any) => r.teamId)));
+          const pending = sentRes.data.filter((r: any) => r.status === "pending");
+          setRequestedTeams(new Set(pending.map((r: any) => r.teamId)));
         }
       } catch {
         // not authenticated, that's ok
@@ -55,7 +56,8 @@ export default function TeamsPage() {
       if (document.visibilityState === "visible") {
         const sentRes = await handleGetSentRequests();
         if (sentRes.success) {
-          setRequestedTeams(new Set(sentRes.data.map((r: any) => r.teamId)));
+          const pending = sentRes.data.filter((r: any) => r.status === "pending");
+          setRequestedTeams(new Set(pending.map((r: any) => r.teamId)));
         }
       }
     };
@@ -94,7 +96,8 @@ export default function TeamsPage() {
     if (result.success) {
       const sentRes = await handleGetSentRequests();
       if (sentRes.success) {
-        setRequestedTeams(new Set(sentRes.data.map((r: any) => r.teamId)));
+        const pending = sentRes.data.filter((r: any) => r.status === "pending");
+        setRequestedTeams(new Set(pending.map((r: any) => r.teamId)));
       }
     }
     setJoining((prev) => { const next = new Set(prev); next.delete(joinTarget._id); return next; });
