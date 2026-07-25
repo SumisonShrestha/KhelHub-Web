@@ -19,7 +19,8 @@ export default function TeamsPage() {
   const [cancellingReq, setCancellingReq] = useState<Set<string>>(new Set());
   const [joinTarget, setJoinTarget] = useState<Team | null>(null);
   const [joinName, setJoinName] = useState("");
-  const [joinMsg, setJoinMsg] = useState("");
+  const [joinPhone, setJoinPhone] = useState("");
+  const [joinPhoneErr, setJoinPhoneErr] = useState("");
   const [cancelling, setCancelling] = useState<Set<string>>(new Set());
   const [leaving, setLeaving] = useState<Set<string>>(new Set());
 
@@ -69,7 +70,8 @@ export default function TeamsPage() {
   const openJoinModal = (team: Team) => {
     setJoinTarget(team);
     setJoinName("");
-    setJoinMsg("");
+    setJoinPhone("");
+    setJoinPhoneErr("");
   };
 
   const handleLeaveTeamAction = async (teamId: string) => {
@@ -83,6 +85,7 @@ export default function TeamsPage() {
   };
 
   const handleCancelRequestAction = async (requestId: string, teamId: string) => {
+    if (!confirm("Are you sure you want to cancel this join request?")) return;
     setCancellingReq((prev) => new Set(prev).add(requestId));
     await handleCancelJoinRequest(requestId);
     setRequestedTeams((prev) => { const next = new Map(prev); next.delete(teamId); return next; });
@@ -99,8 +102,13 @@ export default function TeamsPage() {
 
   const handleJoinSubmit = async () => {
     if (!joinTarget) return;
+    if (!/^\d{10}$/.test(joinPhone)) {
+      setJoinPhoneErr("Phone number must be exactly 10 digits");
+      return;
+    }
+    setJoinPhoneErr("");
     setJoining((prev) => new Set(prev).add(joinTarget._id));
-    const result = await handleJoinTeam(joinTarget._id, joinName, joinMsg || undefined);
+    const result = await handleJoinTeam(joinTarget._id, joinName, joinPhone);
     if (result.success) {
       const sentRes = await handleGetSentRequests();
       if (sentRes.success) {
@@ -172,18 +180,19 @@ export default function TeamsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Message (Optional)</label>
-                <textarea
-                  value={joinMsg}
-                  onChange={(e) => setJoinMsg(e.target.value)}
-                  placeholder="Add a note..."
-                  rows={3}
-                  className="mt-1 w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
+                <label className="block text-sm font-medium text-gray-700">Phone Number <span className="text-red-500">*</span></label>
+                <input
+                  type="tel"
+                  value={joinPhone}
+                  onChange={(e) => { setJoinPhone(e.target.value); setJoinPhoneErr(""); }}
+                  placeholder="e.g. 9800000000"
+                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                {joinPhoneErr && <p className="mt-1 text-xs text-red-500">{joinPhoneErr}</p>}
               </div>
               <button
                 onClick={handleJoinSubmit}
-                disabled={!joinName.trim() || joining.has(joinTarget._id)}
+                disabled={!joinName.trim() || !/^\d{10}$/.test(joinPhone) || joining.has(joinTarget._id)}
                 className="w-full rounded-xl bg-[#121A2A] py-3 font-semibold text-white shadow transition hover:shadow-lg disabled:opacity-50"
               >
                 {joining.has(joinTarget._id) ? "Sending Request..." : "Send Request"}

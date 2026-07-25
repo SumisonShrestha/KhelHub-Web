@@ -77,14 +77,11 @@ export default function ProfilePage() {
 
       <main className="flex-1 p-8">
         <div className="bg-white rounded-2xl shadow-sm min-h-[330px] p-8">
-          <div className="flex justify-between">
+          <div>
             <div>
               <h1 className="text-3xl font-bold">My Bookings</h1>
               <p className="text-gray-500">Manage your futsal field bookings</p>
             </div>
-            <button onClick={() => window.location.reload()} className="border border-blue-600 px-6 py-2 rounded-lg text-blue-700 font-semibold hover:bg-blue-50">
-              Refresh
-            </button>
           </div>
 
           {bookings.length === 0 ? (
