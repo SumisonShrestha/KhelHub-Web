@@ -123,7 +123,7 @@ export default function AdminBookingsClient() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="p-6">
             {toast && (
                 <div className={`fixed top-4 right-4 z-50 rounded-lg px-4 py-3 text-sm font-medium shadow-lg text-white ${toast.ok ? "bg-green-600" : "bg-red-600"}`}>
                     {toast.msg}

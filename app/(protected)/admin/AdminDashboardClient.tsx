@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Users, Building2, Trophy, Calendar, ShieldCheck, LogOut } from "lucide-react";
+import { Users, Building2, Calendar, ShieldCheck, Trophy } from "lucide-react";
 import { getVenues } from "@/lib/api/venue";
 import axiosInstance from "@/lib/api/axios-instance";
-import { handleLogout } from "@/lib/actions/auth-action";
 
 interface Props {
   user: any;
@@ -14,9 +12,7 @@ interface Props {
 }
 
 export default function AdminDashboardClient({ user, token }: Props) {
-  const router = useRouter();
-  const [loggingOut, setLoggingOut] = useState(false);
-  const [stats, setStats] = useState({ users: 0, venues: 0, bookings: 0 });
+  const [stats, setStats] = useState({ users: 0, venues: 0, teams: 0, bookings: 0 });
 
   useEffect(() => {
     (async () => {
@@ -28,9 +24,13 @@ export default function AdminDashboardClient({ user, token }: Props) {
         const bookingRes = await axiosInstance.get("/api/v1/admin/bookings?limit=1", {
           headers: { Authorization: `Bearer ${token}` },
         });
+        const teamRes = await axiosInstance.get("/api/v1/admin/teams?limit=1", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setStats({
           users: userRes.data.meta?.total || 0,
           venues: venues.length,
+          teams: teamRes.data.meta?.total || 0,
           bookings: bookingRes.data.meta?.total || 0,
         });
       } catch {}
@@ -40,39 +40,18 @@ export default function AdminDashboardClient({ user, token }: Props) {
   const cards = [
     { label: "Users", value: stats.users, icon: Users, href: "/admin/users", color: "bg-blue-500" },
     { label: "Venues", value: stats.venues, icon: Building2, href: "/admin/venues", color: "bg-green-500" },
+    { label: "Teams", value: stats.teams, icon: Trophy, href: "/admin/teams", color: "bg-orange-500" },
     { label: "Bookings", value: stats.bookings, icon: Calendar, href: "/admin/bookings", color: "bg-purple-500" },
   ];
 
-  const quickLinks = [
-    { label: "Manage Users", href: "/admin/users", icon: Users, desc: "Create, edit, or remove users" },
-    { label: "Manage Venues", href: "/admin/venues", icon: Building2, desc: "View and manage all venues" },
-    { label: "Manage Teams", href: "/admin/teams", icon: Trophy, desc: "View and manage teams" },
-    { label: "Manage Bookings", href: "/admin/bookings", icon: Calendar, desc: "View and manage all bookings" },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-[#121A2A] px-4 py-6 sm:py-8">
-        <div className="mx-auto max-w-6xl flex items-center justify-between">
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-wide">ADMIN DASHBOARD</h1>
-          <button
-            onClick={async () => {
-              setLoggingOut(true);
-              await handleLogout();
-              router.replace("/login");
-            }}
-            disabled={loggingOut}
-            className="flex items-center gap-2 rounded-lg border border-red-400/40 px-4 py-2 text-sm font-medium text-red-300 hover:bg-red-500/10 transition-colors disabled:opacity-50"
-          >
-            <LogOut size={14} />
-            {loggingOut ? "Logging out…" : "Logout"}
-          </button>
-        </div>
+    <div className="p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+        <p className="mt-1 text-sm text-gray-500">Overview of your platform</p>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 py-8">
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((card) => {
             const Icon = card.icon;
             return (
@@ -85,26 +64,6 @@ export default function AdminDashboardClient({ user, token }: Props) {
               </Link>
             );
           })}
-        </div>
-
-        <div className="mt-10">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Links</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {quickLinks.map((link) => {
-              const Icon = link.icon;
-              return (
-                <Link key={link.label} href={link.href} className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#121A2A] text-white">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{link.label}</p>
-                    <p className="text-sm text-gray-500">{link.desc}</p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
         </div>
 
         <div className="mt-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -127,10 +86,9 @@ export default function AdminDashboardClient({ user, token }: Props) {
             <div className="rounded-xl bg-gray-50 p-4">
               <p className="text-xs text-gray-500">Username</p>
               <p className="font-medium text-gray-900">{user.username}</p>
-            </div>
-          </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

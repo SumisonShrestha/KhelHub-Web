@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getTokenCookie } from "@/lib/cookies";
 import { handleWhoami } from "@/lib/actions/auth-action";
+import AdminSidebar from "./_components/AdminSidebar";
 
 export default async function AdminLayout({
     children,
@@ -18,8 +19,15 @@ export default async function AdminLayout({
     }
 
     if (result.data.role !== "admin") {
-        redirect("/dashboard"); // non-admins get bounced to their dashboard
+        redirect("/dashboard");
     }
 
-    return <>{children}</>;
+    return (
+        <div className="flex min-h-screen bg-gray-50">
+            <AdminSidebar />
+            <main className="flex-1 overflow-auto">
+                {children}
+            </main>
+        </div>
+    );
 }

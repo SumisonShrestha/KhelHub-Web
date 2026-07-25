@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useTransition } from "react";
-import { Search, Plus, Pencil, Trash2, Users, RefreshCw, ShieldCheck, UserCircle2, Building2, AlertCircle, Loader2, LogOut } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, Users, RefreshCw, ShieldCheck, UserCircle2, Building2, AlertCircle, Loader2 } from "lucide-react";
 import { AdminUser, PaginationMeta } from "@/lib/api/admin";
 import {
     handleAdminGetUsers,
@@ -8,11 +8,9 @@ import {
     handleAdminUpdateUser,
     handleAdminDeleteUser,
 } from "@/lib/actions/admin-action";
-import { handleLogout } from "@/lib/actions/auth-action";
 import UserFormModal from "./UserFormModal";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import Pagination from "./Pagination";
-import { useRouter } from "next/navigation";
 
 type ModalState =
     | { type: "none" }
@@ -34,8 +32,6 @@ export default function AdminUsersClient() {
     const [error, setError]           = useState<string | null>(null);
     const [isSubmitting, startSubmit] = useTransition();
     const [isDeleting, startDelete]   = useTransition();
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
-    const router = useRouter();
 
     // Debounce search
     useEffect(() => {
@@ -65,13 +61,6 @@ export default function AdminUsersClient() {
     }, [page, debouncedSearch]);
 
     useEffect(() => { fetchUsers(); }, [fetchUsers]);
-
-    // ── Logout ───────────────────────────────────────────────────────────────────
-    const onLogout = async () => {
-        setIsLoggingOut(true);
-        await handleLogout();
-        router.replace("/login");
-    };
 
     // ── Handlers ────────────────────────────────────────────────────────────────
     const handleCreate = (data: any) => {
@@ -151,7 +140,7 @@ export default function AdminUsersClient() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="p-6">
             {/* Toast */}
             {toast && (
                 <div
@@ -178,19 +167,6 @@ export default function AdminUsersClient() {
                         </p>
                     </div>
 
-                    {/* Logout Button */}
-                    <button
-                        onClick={onLogout}
-                        disabled={isLoggingOut}
-                        className="flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
-                    >
-                        {isLoggingOut ? (
-                            <Loader2 size={14} className="animate-spin" />
-                        ) : (
-                            <LogOut size={14} />
-                        )}
-                        {isLoggingOut ? "Logging out…" : "Logout"}
-                    </button>
                 </div>
 
                 {/* Card */}
