@@ -38,7 +38,7 @@ export default function EditProfilePage() {
       const result = await updateProfile(token, fd);
       if (result.success) {
         setUser({ ...user!, firstName: fullName.trim(), profilePicture: result.data?.profilePicture || avatar });
-        router.push("/profile");
+        router.push("/users/profile");
       }
     } catch {
     } finally {

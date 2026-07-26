@@ -231,7 +231,7 @@ export default function BookingPage() {
                   <h3 className="mt-4 text-lg font-semibold text-gray-800">No Bookings Yet</h3>
                   <p className="mt-1 text-sm text-gray-500">Book a venue to see it here.</p>
                   <Link
-                    href="/venues"
+                    href="/users/venues"
                     className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#121A2A] px-6 py-3 text-sm font-semibold text-white shadow transition hover:shadow-lg"
                   >
                     Browse Venues
@@ -289,7 +289,7 @@ export default function BookingPage() {
               <h2 className="mt-4 text-xl font-bold text-gray-900">No Venue Selected</h2>
               <p className="mt-2 text-gray-500">Select a venue first to make a booking.</p>
               <Link
-                href="/venues"
+                href="/users/venues"
                 className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#121A2A] px-6 py-3 text-sm font-semibold text-white shadow transition hover:shadow-lg"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -318,13 +318,13 @@ export default function BookingPage() {
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Link
-              href="/venues"
+              href="/users/venues"
               className="rounded-xl border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
             >
               Book Again
             </Link>
             <Link
-              href="/booking"
+              href="/users/booking"
               className="rounded-xl bg-[#121A2A] px-6 py-3 text-sm font-semibold text-white shadow transition hover:shadow-lg"
             >
               View My Bookings
@@ -349,7 +349,7 @@ export default function BookingPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-5xl px-4 py-8 md:px-6">
         <Link
-          href="/venues"
+          href="/users/venues"
           className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition hover:text-gray-900"
         >
           <ArrowLeft className="h-4 w-4" />

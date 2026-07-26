@@ -18,7 +18,7 @@ export default function HeroSection() {
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (query.trim()) params.set("search", query.trim());
-    router.push(`/venues?${params.toString()}`);
+    router.push(`/users/venues?${params.toString()}`);
   };
 
   return (

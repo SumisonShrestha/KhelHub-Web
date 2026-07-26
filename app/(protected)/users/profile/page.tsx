@@ -63,10 +63,10 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 mt-5">
-          <MenuCard icon={<Edit3 size={18} />} title="Edit Profile" color="bg-blue-500" href="/profile/edit" />
-          <MenuCard icon={<CalendarDays size={18} />} title="My Bookings" color="bg-green-500" href="/booking" />
-          <MenuCard icon={<Users size={18} />} title="My Teams" color="bg-purple-500" href="/my-teams" />
-          <MenuCard icon={<Settings size={18} />} title="Change Password" color="bg-orange-500" href="/profile/change-password" />
+          <MenuCard icon={<Edit3 size={18} />} title="Edit Profile" color="bg-blue-500" href="/users/profile/edit" />
+          <MenuCard icon={<CalendarDays size={18} />} title="My Bookings" color="bg-green-500" href="/users/booking" />
+          <MenuCard icon={<Users size={18} />} title="My Teams" color="bg-purple-500" href="/users/my-teams" />
+          <MenuCard icon={<Settings size={18} />} title="Change Password" color="bg-orange-500" href="/users/profile/change-password" />
         </div>
 
         <button onClick={doLogout} className="mt-5 w-full h-12 rounded-xl bg-white border border-red-300 text-red-500 font-semibold flex items-center justify-center gap-3 hover:bg-red-50">
@@ -87,7 +87,7 @@ export default function ProfilePage() {
           {bookings.length === 0 ? (
             <div className="flex flex-col items-center justify-center mt-12">
               <p className="text-gray-500 text-lg">No bookings found</p>
-              <Link href="/venues" className="mt-5 px-8 py-3 rounded-xl bg-gradient-to-r from-blue-700 to-teal-500 text-white font-semibold shadow-lg hover:opacity-90">
+              <Link href="/users/venues" className="mt-5 px-8 py-3 rounded-xl bg-gradient-to-r from-blue-700 to-teal-500 text-white font-semibold shadow-lg hover:opacity-90">
                 Find Venues to Book
               </Link>
             </div>
@@ -105,7 +105,7 @@ export default function ProfilePage() {
             </div>
           )}
 
-          <Link href="/venues" className="mt-16 w-full py-3 rounded-xl bg-gradient-to-r from-blue-700 to-teal-500 text-white font-bold flex items-center justify-center hover:opacity-90">
+          <Link href="/users/venues" className="mt-16 w-full py-3 rounded-xl bg-gradient-to-r from-blue-700 to-teal-500 text-white font-bold flex items-center justify-center hover:opacity-90">
             Book Another Venue
           </Link>
         </div>

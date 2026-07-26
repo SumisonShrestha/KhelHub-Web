@@ -59,7 +59,7 @@ export default function DashboardTrending() {
           <Flame className="h-6 w-6 text-orange-500" />
           <h2 className="text-2xl font-bold text-gray-900">Trending Sport Hubs</h2>
         </div>
-        <Link href="/venues" className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+        <Link href="/users/venues" className="text-sm font-semibold text-blue-600 hover:text-blue-700">
           View All →
         </Link>
       </div>
@@ -111,7 +111,7 @@ export default function DashboardTrending() {
                   <span className="text-[10px] text-gray-500">/hr</span>
                 </div>
                 <Link
-                  href={"/venues?venueId=" + venue._id}
+                  href={"/users/venues?venueId=" + venue._id}
                   className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
                 >
                   Book Now

@@ -19,7 +19,7 @@ export default async function AdminLayout({
     }
 
     if (result.data.role !== "admin") {
-        redirect("/dashboard");
+        redirect("/users/dashboard");
     }
 
     return (

@@ -26,7 +26,7 @@ export default function FeaturedVenues() {
           <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">Featured Venues</h2>
           <p className="mt-2 text-gray-500">Top sporthub near you</p>
         </div>
-        <Link href="/venues" className="font-semibold text-blue-600 transition hover:text-blue-700">
+        <Link href="/users/venues" className="font-semibold text-blue-600 transition hover:text-blue-700">
           View All →
         </Link>
       </div>
@@ -53,7 +53,7 @@ export default function FeaturedVenues() {
               <div className="mt-6 flex items-center justify-between">
                 <span className="text-lg font-bold text-blue-600">Rs {venue.pricePerHour}/hr</span>
                 <Link
-                  href={`/booking?venueId=${venue._id}`}
+                  href={`/users/booking?venueId=${venue._id}`}
                   className="rounded-lg bg-[#121A2A] px-4 py-2 text-sm font-semibold text-white shadow transition hover:shadow-lg"
                 >
                   Book Now

@@ -195,7 +195,7 @@ export default function OwnerDashboardPage() {
           <h3 className="mt-4 text-lg font-semibold text-gray-800">No Venues Listed</h3>
           <p className="mt-1 text-sm text-gray-500">You haven&apos;t listed any venues yet.</p>
           <Link
-            href="/venues/create"
+            href="/users/venues/create"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#121A2A] px-6 py-3 text-sm font-semibold text-white shadow transition hover:shadow-lg"
           >
             List a Venue
@@ -241,7 +241,7 @@ export default function OwnerDashboardPage() {
           <>
           <div className="mb-6 flex items-center justify-between">
             <p className="text-sm text-gray-500">{venues.length} venue{venues.length > 1 ? "s" : ""} listed</p>
-            <Link href="/venues/create" className="inline-flex items-center gap-1.5 rounded-xl bg-[#121A2A] px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:shadow-lg">Add Venue</Link>
+            <Link href="/users/venues/create" className="inline-flex items-center gap-1.5 rounded-xl bg-[#121A2A] px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:shadow-lg">Add Venue</Link>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {venues.map((venue) => (
@@ -271,7 +271,7 @@ export default function OwnerDashboardPage() {
                     <span className="text-sm text-gray-500">/hour</span>
                   </div>
                   <div className="mt-4 flex gap-2">
-                    <Link href={`/venues/create?edit=${venue._id}`} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"><Edit size={15} />Edit</Link>
+                    <Link href={`/users/venues/create?edit=${venue._id}`} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"><Edit size={15} />Edit</Link>
                     <button onClick={() => setDeleteTarget(venue)} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-red-200 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"><Trash2 size={15} />Delete</button>
                   </div>
                 </div>

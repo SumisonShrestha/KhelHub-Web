@@ -48,7 +48,7 @@ export default function CreateTeamPage() {
     });
 
     if (result.success) {
-      router.push("/my-teams");
+      router.push("/users/my-teams");
     } else {
       setError(result.message);
     }
@@ -177,7 +177,7 @@ export default function CreateTeamPage() {
 
             <div className="flex gap-3">
               <Link
-                href="/my-teams"
+                href="/users/my-teams"
                 className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Cancel

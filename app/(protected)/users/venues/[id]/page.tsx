@@ -191,14 +191,14 @@ export default function VenueDetailPage() {
 
             <div className="flex flex-wrap gap-3 border-t border-gray-700 pt-6">
               <Link
-                href={`/booking?venueId=${venue._id}`}
+                href={`/users/booking?venueId=${venue._id}`}
                 className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3 font-semibold text-black shadow transition hover:shadow-lg"
               >
                 <Calendar className="h-4 w-4" />
                 Book This Venue
               </Link>
               <button
-                onClick={() => router.push("/venues")}
+                onClick={() => router.push("/users/venues")}
                 className="inline-flex items-center gap-2 rounded-xl border border-gray-600 px-8 py-3 font-semibold text-gray-300 transition hover:bg-gray-800"
               >
                 View All Venues
