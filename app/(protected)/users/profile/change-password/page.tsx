@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { ArrowLeft, Eye, EyeOff, Lock } from "lucide-react";
 import { handleChangePassword } from "@/lib/actions/auth-action";
 import { changePasswordSchema, type ChangePasswordFormData } from "@/app/(auth)/_components/schema";
@@ -46,23 +47,44 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#eef3f8] flex items-center justify-center">
-      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm">
-        <button onClick={() => router.back()} className="mb-6 flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900">
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </button>
+    <main className="flex min-h-screen">
+      <div className="hidden lg:flex w-160 bg-white flex-col justify-center items-center relative overflow-hidden border-r border-gray-200 shadow-xl">
+        <div className="relative w-full h-full">
+          <Image
+            src="/passchange.png"
+            alt=""
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-transparent" />
+        </div>
+      </div>
 
-        <h1 className="text-2xl font-bold text-gray-900">Change Password</h1>
-        <p className="mt-1 text-sm text-gray-500">Update your account password</p>
+      <div className="flex-1 flex flex-col justify-center items-center p-8 bg-white">
+        <div className="mb-12 text-center">
+          <Image
+            src="/logo.png"
+            alt="KhelHub Logo"
+            width={200}
+            height={100}
+            priority
+            className="mx-auto object-contain"
+          />
+        </div>
+
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 tracking-wider mb-2">CHANGE PASSWORD</h1>
+          <p className="text-gray-600 text-sm">Update your account password</p>
+        </div>
 
         {message && (
-          <div className={`mt-6 rounded-xl p-3 text-sm ${message.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+          <div className={`w-full max-w-sm mb-4 px-4 py-3 rounded-xl text-sm ${message.type === "success" ? "bg-green-50 border border-green-300 text-green-700" : "bg-red-50 border border-red-300 text-red-700"}`}>
             {message.text}
           </div>
         )}
 
-        <div className="mt-8 space-y-5">
+        <div className="w-full max-w-sm space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700">Current Password</label>
             <div className="relative mt-1.5">
@@ -109,7 +131,7 @@ export default function ChangePasswordPage() {
           </div>
         </div>
 
-        <div className="mt-8 flex items-center gap-3">
+        <div className="mt-8 flex w-full max-w-sm gap-3">
           <button onClick={() => router.back()} className="flex-1 rounded-xl border border-gray-300 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
             Cancel
           </button>
@@ -118,6 +140,6 @@ export default function ChangePasswordPage() {
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
