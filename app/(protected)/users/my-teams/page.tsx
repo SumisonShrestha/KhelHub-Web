@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Users, Home, LogOut, Trash2, Check, X, AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { handleDeleteTeam, handleGetMyTeams, handleGetReceivedRequests, handleApproveRequest, handleDenyRequest } from "@/lib/actions/team-action";
 import { getToken } from "@/lib/actions/auth-action";
@@ -75,9 +76,12 @@ export default function MyTeamsPage() {
         <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-cyan-300/20 blur-3xl" />
         <div className="relative z-10 mx-auto max-w-5xl">
           <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
-            <div className="text-center md:text-left">
-              <h1 className="text-3xl font-bold md:text-4xl">My Teams</h1>
-              <p className="mt-1 text-blue-100">Teams you have joined</p>
+            <div className="flex items-center gap-4 md:ml-0">
+              <Image src="/team.png" alt="Teams" width={120} height={120} priority className="shrink-0 -ml-16 md:-ml-20" />
+              <div>
+                <h1 className="text-3xl font-bold md:text-4xl">My Teams</h1>
+                <p className="mt-1 text-blue-100">Teams you have joined</p>
+              </div>
             </div>
             <Link
               href="/users/teams"

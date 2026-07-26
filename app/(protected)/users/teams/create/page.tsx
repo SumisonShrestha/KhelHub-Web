@@ -6,12 +6,15 @@ import { ArrowLeft } from "lucide-react";
 import { handleCreateTeam } from "@/lib/actions/team-action";
 import Link from "next/link";
 
+const SPORTS = ["Futsal", "Football", "Basketball", "Cricket", "Badminton", "Tennis", "Volleyball", "Swimming", "Boxing", "Other"] as const;
+
 const SKILL_LEVELS = ["Beginner", "Intermediate", "Advanced", "Professional"] as const;
 
 export default function CreateTeamPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [sport, setSport] = useState("Futsal");
   const [location, setLocation] = useState("");
   const [preferredVenue, setPreferredVenue] = useState("");
   const [skillLevel, setSkillLevel] = useState<string | null>(null);
@@ -40,6 +43,7 @@ export default function CreateTeamPage() {
     const result = await handleCreateTeam({
       name: name.trim(),
       description: description.trim() || undefined,
+      sport,
       location: location.trim(),
       level: skillLevel || undefined,
       maxPlayers,
@@ -69,7 +73,7 @@ export default function CreateTeamPage() {
         <div className="rounded-2xl border bg-white p-8 shadow-sm">
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-bold text-gray-900">Create a New Team</h1>
-            <p className="mt-1 text-gray-500">Fill in the details to create your futsal team</p>
+            <p className="mt-1 text-gray-500">Fill in the details to create your team</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -85,6 +89,19 @@ export default function CreateTeamPage() {
                 required
                 className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Sport</label>
+              <select
+                value={sport}
+                onChange={(e) => setSport(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {SPORTS.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
             </div>
 
             <div>

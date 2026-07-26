@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Users, X, Trash2 } from "lucide-react";
+import { Users, X, Trash2, AlertCircle } from "lucide-react";
+import Image from "next/image";
 import { getTeams, type Team } from "@/lib/api/team";
 import { handleJoinTeam, handleGetMyTeams, handleDeleteTeam, handleGetSentRequests, handleLeaveTeam, handleCancelJoinRequest } from "@/lib/actions/team-action";
 import { SkeletonCard } from "@/app/_components/Skeleton";
@@ -22,6 +23,7 @@ export default function TeamsPage() {
   const [joinName, setJoinName] = useState("");
   const [joinPhone, setJoinPhone] = useState("");
   const [joinPhoneErr, setJoinPhoneErr] = useState("");
+  const [cancelTarget, setCancelTarget] = useState<Team | null>(null);
   const [cancelling, setCancelling] = useState<Set<string>>(new Set());
   const [leaving, setLeaving] = useState<Set<string>>(new Set());
 
@@ -94,10 +96,10 @@ export default function TeamsPage() {
   };
 
   const handleCancelTeam = async (teamId: string) => {
-    if (!confirm("Are you sure you want to cancel this team?")) return;
     setCancelling((prev) => new Set(prev).add(teamId));
     await handleDeleteTeam(teamId);
     setCancelling((prev) => { const next = new Set(prev); next.delete(teamId); return next; });
+    setCancelTarget(null);
     loadTeams();
   };
 
@@ -132,12 +134,12 @@ export default function TeamsPage() {
         <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-cyan-300/20 blur-3xl" />
 
         <div className="relative z-10 mx-auto max-w-5xl">
-          <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
+          <div className="flex items-center justify-center gap-4">
+            <Image src="/jointeam.png" alt="Teams" width={120} height={120} priority className="shrink-0 -ml-16 md:-ml-20" />
             <div className="text-center md:text-left">
               <h1 className="text-3xl font-bold md:text-4xl">Teams</h1>
               <p className="mt-1 text-blue-100">Find or create your perfect squad</p>
             </div>
-
           </div>
 
           <div className="mx-auto mt-8 max-w-xl">
@@ -263,12 +265,11 @@ export default function TeamsPage() {
                     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                         {team.createdBy === (user as any)?._id ? (
                           <button
-                            onClick={() => handleCancelTeam(team._id)}
-                            disabled={cancelling.has(team._id)}
+                            onClick={() => setCancelTarget(team)}
                             className="flex items-center gap-1 rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                            {cancelling.has(team._id) ? "Cancelling..." : "Cancel"}
+                            Cancel
                           </button>
                         ) : joinedTeams.has(team._id) ? (
                           <button
@@ -303,6 +304,32 @@ export default function TeamsPage() {
           </div>
         )}
       </div>
+
+      {cancelTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-gray-900">Cancel Team?</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              Are you sure you want to cancel <strong>{cancelTarget.name}</strong>? This cannot be undone.
+            </p>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setCancelTarget(null)}
+                className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                No
+              </button>
+              <button
+                onClick={() => handleCancelTeam(cancelTarget._id)}
+                disabled={cancelling.has(cancelTarget._id)}
+                className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+              >
+                {cancelling.has(cancelTarget._id) ? "Cancelling..." : "Yes, Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
