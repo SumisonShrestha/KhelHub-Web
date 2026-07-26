@@ -23,7 +23,7 @@ export default function Hero({ venueCount, avgRating, query, city, onQueryChange
         <div className="flex flex-col items-center text-center md:flex-row md:items-center md:justify-between md:text-left">
           <div>
             <h1 className="text-3xl font-bold md:text-4xl">
-              Book Your Match ⚽
+              Book Your Match
             </h1>
             <p className="mt-2 text-blue-100">Top-rated futsal arenas near you</p>
           </div>
