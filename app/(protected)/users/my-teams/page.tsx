@@ -80,7 +80,7 @@ export default function MyTeamsPage() {
               <p className="mt-1 text-blue-100">Teams you have joined</p>
             </div>
             <Link
-              href="/teams"
+              href="/users/teams"
               className="flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-blue-700 shadow-lg transition hover:shadow-xl"
             >
               <Users className="h-4 w-4" />
@@ -133,13 +133,13 @@ export default function MyTeamsPage() {
                 </p>
                 <div className="mt-8 flex flex-wrap justify-center gap-4">
                   <Link
-                    href="/teams"
+                    href="/users/teams"
                     className="rounded-lg border-2 border-blue-600 px-6 py-3 font-semibold text-blue-600 transition hover:bg-blue-50"
                   >
                     Browse Teams
                   </Link>
                   <Link
-                    href="/teams/create"
+                    href="/users/teams/create"
                     className="rounded-lg bg-gradient-to-r from-blue-600 to-teal-500 px-6 py-3 font-semibold text-white shadow transition hover:opacity-90"
                   >
                     Create Team
@@ -159,7 +159,7 @@ export default function MyTeamsPage() {
                   return (
                     <div
                       key={team._id}
-                      onClick={() => router.push(`/teams/${team._id}`)}
+                      onClick={() => router.push(`/users/teams/${team._id}`)}
                       className="flex cursor-pointer items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4 transition-all hover:border-blue-300 hover:shadow-lg"
                     >
                       <div className="flex items-center gap-4">

@@ -73,7 +73,7 @@ export default function VenueTopBar({ venue, onClose, onRateClick }: Props) {
 
           <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
             <Link
-              href={`/booking?venueId=${venue._id}`}
+              href={`/users/booking?venueId=${venue._id}`}
               className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-blue-700 transition hover:scale-105 hover:shadow-lg"
             >
               <Calendar className="h-4 w-4" />

@@ -7,7 +7,7 @@ export default async function AdminBookingsPage() {
   const user = await getUserData();
 
   if (!token || !user) redirect("/login");
-  if (user.role !== "admin") redirect("/dashboard");
+  if (user.role !== "admin") redirect("/users/dashboard");
 
   return <AdminBookingsClient />;
 }

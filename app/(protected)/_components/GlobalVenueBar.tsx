@@ -1,7 +1,7 @@
 "use client";
 
 import { useSelectedVenue } from "@/context/SelectedVenueContext";
-import VenueTopBar from "@/app/(protected)/venues/components/VenueTopBar";
+import VenueTopBar from "@/app/(protected)/users/venues/components/VenueTopBar";
 
 export default function GlobalVenueBar() {
   const { selectedVenue, selectVenue } = useSelectedVenue();

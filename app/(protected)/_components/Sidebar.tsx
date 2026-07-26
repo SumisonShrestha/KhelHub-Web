@@ -2,9 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 const links = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/venues", label: "Venues" },
-  { href: "/profile", label: "Profile" },
+  { href: "/users/dashboard", label: "Dashboard" },
+  { href: "/users/venues", label: "Venues" },
+  { href: "/users/profile", label: "Profile" },
 ];
 
 export default function Sidebar() {

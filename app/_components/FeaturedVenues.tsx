@@ -34,7 +34,7 @@ export default function FeaturedVenues() {
             <h2 className="text-2xl font-bold text-gray-900">Featured Venues</h2>
             <p className="mt-1 text-gray-500">Top rated futsal fields this month</p>
           </div>
-          <Link href="/venues" className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+          <Link href="/users/venues" className="text-sm font-semibold text-blue-600 hover:text-blue-700">
             View All →
           </Link>
         </div>
@@ -43,7 +43,7 @@ export default function FeaturedVenues() {
           {venues.map((venue, idx) => (
             <Link
               key={venue._id}
-              href="/venues"
+              href="/users/venues"
               className="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="absolute left-3 top-3 z-10 flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-sm font-bold shadow-md backdrop-blur">

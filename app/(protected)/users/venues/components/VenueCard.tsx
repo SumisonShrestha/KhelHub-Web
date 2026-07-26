@@ -85,14 +85,14 @@ export default function VenueCard({ venue, onSelect, isSelected, onRateClick }: 
                 </button>
               )}
               <Link
-                href={`/venues/${venue._id}`}
+                href={`/users/venues/${venue._id}`}
                 onClick={(e) => e.stopPropagation()}
                 className="rounded-xl border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-100"
               >
                 Details
               </Link>
               <Link
-                href={`/booking?venueId=${venue._id}`}
+                href={`/users/booking?venueId=${venue._id}`}
                 onClick={(e) => e.stopPropagation()}
                 className="rounded-xl bg-[#121A2A] px-4 py-2 text-sm font-semibold text-white shadow transition hover:shadow-lg"
               >

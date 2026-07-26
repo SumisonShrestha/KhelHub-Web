@@ -36,7 +36,7 @@ export default function LoginFormZod() {
       } else if (role === "owner") {
         window.location.href = "/owner";
       } else {
-        window.location.href = "/dashboard";
+        window.location.href = "/users/dashboard";
       }
     } else {
       setApiError(result.message);

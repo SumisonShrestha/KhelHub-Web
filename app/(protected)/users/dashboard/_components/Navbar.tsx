@@ -29,17 +29,17 @@ export default function Navbar() {
         <div className="hidden lg:flex items-center gap-8 text-gray-300">
 
           <Link
-            href="/dashboard"
+            href="/users/dashboard"
             className="text-blue-400 border-b-2 border-blue-500 pb-1"
           >
             Home
           </Link>
 
-          <Link href="/venues">
+          <Link href="/users/venues">
             Venues
           </Link>
 
-          <Link href="/teams">
+          <Link href="/users/teams">
             Teams
           </Link>
 

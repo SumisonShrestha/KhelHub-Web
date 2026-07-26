@@ -6,7 +6,7 @@ export default async function AdminUsersPage() {
     const user = await getUserData();
 
     if (!user) redirect("/login");
-    if (user.role !== "admin") redirect("/dashboard");
+    if (user.role !== "admin") redirect("/users/dashboard");
 
     return <AdminUsersClient />;
 }

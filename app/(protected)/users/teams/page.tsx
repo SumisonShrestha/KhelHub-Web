@@ -227,7 +227,7 @@ export default function TeamsPage() {
               return (
                 <div
                   key={team._id}
-                  onClick={() => router.push(`/teams/${team._id}`)}
+                  onClick={() => router.push(`/users/teams/${team._id}`)}
                   className="flex cursor-pointer items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4 transition-all hover:border-blue-300 hover:shadow-lg"
                 >
                   <div className="flex items-center gap-4">

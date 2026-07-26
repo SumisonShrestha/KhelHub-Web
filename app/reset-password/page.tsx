@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { resetPassword } from "@/lib/api/auth";
 import { useSearchParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 
 function ResetForm() {
@@ -45,17 +46,17 @@ function ResetForm() {
   return (
     <>
       {message && (
-        <div className="mb-4 px-4 py-3 bg-green-50 border border-green-300 rounded-lg text-green-700 text-sm">
+        <div className="w-full max-w-sm mb-4 px-4 py-3 bg-green-50 border border-green-300 rounded-lg text-green-700 text-sm">
           {message}
         </div>
       )}
       {error && (
-        <div className="mb-4 px-4 py-3 bg-red-50 border border-red-300 rounded-lg text-red-700 text-sm">
+        <div className="w-full max-w-sm mb-4 px-4 py-3 bg-red-50 border border-red-300 rounded-lg text-red-700 text-sm">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-6">
         <div className="flex flex-col">
           <label htmlFor="password" className="text-sm font-semibold text-gray-900 mb-3">New Password</label>
           <input
@@ -89,8 +90,32 @@ function ResetForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-white p-8">
-      <div className="w-full max-w-sm">
+    <main className="flex min-h-screen">
+      <div className="hidden lg:flex w-160 bg-white flex-col justify-center items-center relative overflow-hidden border-r border-gray-200 shadow-xl">
+        <div className="relative w-full h-full">
+          <Image
+            src="/okpassword.png"
+            alt="Athletic Player"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-transparent" />
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col justify-center items-center p-8 bg-white">
+        <div className="mb-12 text-center">
+          <Image
+            src="/logo.png"
+            alt="KhelHub Logo"
+            width={200}
+            height={100}
+            priority
+            className="mx-auto object-contain"
+          />
+        </div>
+
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 tracking-wider mb-2">RESET PASSWORD</h1>
           <p className="text-gray-600 text-sm">Enter your new password</p>

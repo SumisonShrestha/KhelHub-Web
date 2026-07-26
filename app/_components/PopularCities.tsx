@@ -20,7 +20,7 @@ export default function PopularCities() {
           {cities.map((city) => (
             <Link
               key={city.name}
-              href={"/venues?city=" + city.name}
+              href={"/users/venues?city=" + city.name}
               className="group rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#121A2A] text-2xl">

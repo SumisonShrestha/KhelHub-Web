@@ -51,7 +51,7 @@ export default function RegisterFormZod() {
       <div className="hidden lg:flex w-160 bg-white flex-col justify-center items-center relative overflow-hidden border-r border-gray-200 shadow-xl">
         <div className="relative w-full h-full">
           <Image
-            src="/signup.jpeg"
+            src="/loginx.jpeg"
             alt="Athletic Player"
             fill
             className="object-cover"

@@ -95,19 +95,19 @@ export default function Navbar() {
     setUnreadCount(0);
   };
 
-  if (pathname === "/" || pathname === "/login" || pathname === "/register" || pathname.startsWith("/admin") || pathname.startsWith("/owner") || pathname.startsWith("/venues/create")) return null;
+  if (pathname === "/" || pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password" || pathname.startsWith("/admin") || pathname.startsWith("/owner") || pathname.startsWith("/users/venues/create")) return null;
 
   const navLinks = [
-    { href: "/dashboard", label: "Home" },
-    { href: "/venues", label: "Venues" },
-    { href: "/teams", label: "Teams" },
-    { href: "/booking", label: "Bookings" },
+    { href: "/users/dashboard", label: "Home" },
+    { href: "/users/venues", label: "Venues" },
+    { href: "/users/teams", label: "Teams" },
+    { href: "/users/booking", label: "Bookings" },
   ];
 
   return (
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/90 backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href="/users/dashboard" className="flex items-center gap-2">
           <Image src="/khelhublogo_.png" alt="KhelHub" width={280} height={76} priority className="h-14 w-auto brightness-0 invert" />
         </Link>
 
@@ -127,7 +127,7 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-3 md:flex">
           <Link
-            href="/my-teams"
+            href="/users/my-teams"
             className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
           >
             My Teams
@@ -146,11 +146,11 @@ export default function Navbar() {
                 </button>
                 {dropOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-white/10 bg-black py-2 shadow-2xl">
-                    <Link href="/profile" onClick={() => setDropOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
+                    <Link href="/users/profile" onClick={() => setDropOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
                       <UserCircle className="h-4 w-4" />
                       Profile
                     </Link>
-                    <Link href="/booking" onClick={() => setDropOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
+                    <Link href="/users/booking" onClick={() => setDropOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
                       <Calendar className="h-4 w-4" />
                       Bookings
                     </Link>
@@ -246,17 +246,17 @@ export default function Navbar() {
             ))}
             <hr className="my-2 border-white/10" />
             <div className="flex gap-2">
-              <Link href="/my-teams" onClick={() => setOpen(false)} className="flex-1 rounded-full border border-white/20 px-5 py-2 text-center text-sm font-semibold text-white">
+                <Link href="/users/my-teams" onClick={() => setOpen(false)} className="flex-1 rounded-full border border-white/20 px-5 py-2 text-center text-sm font-semibold text-white">
                 My Teams
               </Link>
             </div>
             {user ? (
               <div className="flex flex-col gap-2">
-                <Link href="/profile" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white">
+                <Link href="/users/profile" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white">
                   <UserCircle className="h-4 w-4" />
                   Profile
                 </Link>
-                <Link href="/booking" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white">
+                <Link href="/users/booking" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white">
                   <Calendar className="h-4 w-4" />
                   Bookings
                 </Link>
