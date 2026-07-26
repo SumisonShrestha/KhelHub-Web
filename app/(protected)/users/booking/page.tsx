@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SkeletonBookingCard } from "@/app/_components/Skeleton";
 import Link from "next/link";
+import Image from "next/image";
 import { CalendarDays, Clock, MapPin, Star, ArrowLeft, Check, Calendar, MapPinned, X, Banknote, Landmark } from "lucide-react";
 import { getVenueById, type Venue } from "@/lib/api/venue";
 import { handleCreateBooking, handleGetMyBookings, handleCancelBooking } from "@/lib/actions/booking-action";
@@ -304,28 +305,29 @@ export default function BookingPage() {
 
   if (success) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="rounded-2xl border bg-white p-10 text-center shadow-sm">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-black text-white">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center shadow-sm backdrop-blur">
+          <Image src="/bookingdone.png" alt="Booking Confirmed" width={300} height={300} priority className="mx-auto mb-6" />
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
             <Check className="h-7 w-7 text-green-600" />
           </div>
-          <h2 className="mt-5 text-2xl font-bold text-gray-900">Booking Confirmed!</h2>
-          <p className="mt-2 text-gray-500">
+          <h2 className="mt-5 text-2xl font-bold text-white">Booking Confirmed!</h2>
+          <p className="mt-2 text-gray-300">
             {venue.name} — {date} at {timeSlot} ({duration} hr{duration > 1 ? "s" : ""})
           </p>
-          <p className="mt-1 text-lg font-bold text-gray-900">
+          <p className="mt-1 text-lg font-bold text-white">
             Rs {(venue.pricePerHour * duration).toLocaleString()}
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Link
               href="/users/venues"
-              className="rounded-xl border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              className="rounded-xl border border-white/20 px-6 py-3 text-sm font-semibold text-gray-300 transition hover:bg-white/10"
             >
               Book Again
             </Link>
             <Link
               href="/users/booking"
-              className="rounded-xl bg-[#121A2A] px-6 py-3 text-sm font-semibold text-white shadow transition hover:shadow-lg"
+              className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black shadow transition hover:bg-white/90"
             >
               View My Bookings
             </Link>
