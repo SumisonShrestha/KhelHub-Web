@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Building2, Edit, Trash2, Loader2, AlertCircle, Calendar, MapPin, Trophy, ShieldCheck, User } from "lucide-react";
+import { Building2, Edit, Trash2, Loader2, AlertCircle, Calendar, MapPin, Trophy, ShieldCheck, User, TrendingUp } from "lucide-react";
 import DeleteVenueModal from "./_components/DeleteVenueModal";
 import axiosInstance from "@/lib/api/axios-instance";
 import { API } from "@/lib/api/endpoints";
 import { getToken } from "@/lib/actions/auth-action";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface Venue {
   _id: string;
@@ -47,6 +48,7 @@ export default function OwnerDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState({ venues: 0, bookings: 0 });
+  const [trend, setTrend] = useState<{ date: string; venues: number; bookings: number }[]>([]);
   const [user, setUser] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<Venue | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -70,10 +72,38 @@ export default function OwnerDashboardPage() {
         axiosInstance.get(API.VENUES.MY_VENUES, { headers: { Authorization: `Bearer ${token}` } }),
         axiosInstance.get(API.BOOKINGS.OWNER, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
+      const venuesList: any[] = vRes.data.data ?? [];
+      const bookingsList: any[] = bRes.data.data ?? [];
       setStats({
-        venues: vRes.data.data?.length || 0,
-        bookings: bRes.data.data?.length || 0,
+        venues: venuesList.length,
+        bookings: bookingsList.length,
       });
+
+      const allDates = new Set<string>();
+      const countMap: Record<string, { venues: number; bookings: number }> = {};
+
+      venuesList.forEach((v: any) => {
+        const d = (v.createdAt || "").split("T")[0];
+        if (!d) return;
+        allDates.add(d);
+        if (!countMap[d]) countMap[d] = { venues: 0, bookings: 0 };
+        countMap[d].venues++;
+      });
+      bookingsList.forEach((b: any) => {
+        const d = (b.date || b.createdAt || "").split("T")[0];
+        if (!d) return;
+        allDates.add(d);
+        if (!countMap[d]) countMap[d] = { venues: 0, bookings: 0 };
+        countMap[d].bookings++;
+      });
+
+      const sorted = Array.from(allDates).sort();
+      let cumVenues = 0, cumBookings = 0;
+      setTrend(sorted.map((date) => {
+        cumVenues += countMap[date]?.venues || 0;
+        cumBookings += countMap[date]?.bookings || 0;
+        return { date, venues: cumVenues, bookings: cumBookings };
+      }));
     } catch {}
   };
 
@@ -159,31 +189,29 @@ export default function OwnerDashboardPage() {
         })}
       </div>
 
-      {user && (
-        <div className="mt-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900">Owner Info</h3>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs text-gray-500">Name</p>
-              <p className="font-medium text-gray-900">{user.firstName} {user.lastName}</p>
-            </div>
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs text-gray-500">Email</p>
-              <p className="font-medium text-gray-900">{user.email}</p>
-            </div>
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs text-gray-500">Role</p>
-              <p className="flex items-center gap-1 font-medium text-gray-900">
-                <ShieldCheck className="h-4 w-4 text-blue-600" /> Owner
-              </p>
-            </div>
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs text-gray-500">Username</p>
-              <p className="font-medium text-gray-900">{user.username}</p>
-            </div>
-          </div>
+      <div className="mt-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="mb-4 flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-blue-600" />
+          <h3 className="text-lg font-bold text-gray-900">Your Growth</h3>
         </div>
-      )}
+        {trend.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={trend}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+              <Tooltip
+                contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12 }}
+                labelStyle={{ fontWeight: 600 }}
+              />
+              <Line type="monotone" dataKey="venues" stroke="#10b981" strokeWidth={2} name="Venues" dot={false} />
+              <Line type="monotone" dataKey="bookings" stroke="#8b5cf6" strokeWidth={2} name="Bookings" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="py-10 text-center text-sm text-gray-400">No data available yet</p>
+        )}
+      </div>
     </>
   );
 

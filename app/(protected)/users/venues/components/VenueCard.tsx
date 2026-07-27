@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { MapPin, Star, CheckCircle } from "lucide-react";
 import type { Venue } from "@/lib/api/venue";
 
@@ -14,14 +15,15 @@ interface Props {
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=800";
 
 export default function VenueCard({ venue, onSelect, isSelected, onRateClick }: Props) {
+  const router = useRouter();
   const availability = Math.min(Math.round((venue.rating / 5) * 90 + 10), 100);
 
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={() => onSelect(venue)}
-      onKeyDown={(e) => { if (e.key === "Enter") onSelect(venue); }}
+      onClick={() => router.push(`/users/venues/${venue._id}`)}
+      onKeyDown={(e) => { if (e.key === "Enter") router.push(`/users/venues/${venue._id}`); }}
       className={`group w-full cursor-pointer overflow-hidden rounded-3xl border bg-white text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
         isSelected ? "border-blue-500 ring-2 ring-blue-200" : "border-gray-200"
       }`}
