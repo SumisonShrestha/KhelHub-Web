@@ -28,6 +28,7 @@ export const API = {
 
   BOOKINGS: {
     ALL: "/api/v1/bookings",
+    INITIATE_ESEWA: "/api/v1/bookings/initiate-esewa",
     CANCEL: (id: string) => `/api/v1/bookings/${id}/cancel`,
     OWNER: "/api/v1/bookings/owner",
   },

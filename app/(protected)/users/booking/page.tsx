@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { SkeletonBookingCard } from "@/app/_components/Skeleton";
 import Link from "next/link";
 import Image from "next/image";
 import { CalendarDays, Clock, MapPin, Star, ArrowLeft, Check, Calendar, MapPinned, X, Banknote, Landmark, CalendarCheck } from "lucide-react";
 import { getVenueById, type Venue } from "@/lib/api/venue";
-import { handleCreateBooking, handleGetMyBookings, handleCancelBooking } from "@/lib/actions/booking-action";
+import { handleCreateBooking, handleGetMyBookings, handleCancelBooking, handleInitiateEsewaPayment } from "@/lib/actions/booking-action";
 
 const TIME_SLOTS = [
   "06:00-07:00", "07:00-08:00", "08:00-09:00", "09:00-10:00",
@@ -41,24 +41,26 @@ export default function BookingPage() {
         .catch(() => setVenue(null))
         .finally(() => setLoadingVenue(false));
     } else {
+      setSuccess(null);
+      setError(null);
       loadBookings();
     }
   }, [venueId, loadBookings]);
-
-  const router = useRouter();
 
   const [date, setDate] = useState("");
   const [timeSlot, setTimeSlot] = useState("");
   const [duration, setDuration] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState<string | null>(null);
   const [cancelTarget, setCancelTarget] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"cash" | "khalti" | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "esewa" | null>(null);
+
+  const formRef = useRef<HTMLFormElement>(null);
 
   const DISCOUNT = 50;
 
@@ -68,61 +70,52 @@ export default function BookingPage() {
     setShowConfirmModal(true);
   };
 
-  const khaltiLoadedRef = useRef(false);
-
-  const handleKhaltiPayment = (bookingData: any) => {
-    const khaltiPublicKey = process.env.NEXT_PUBLIC_KHALTI_PUBLIC_KEY || "test_public_key_dc74e0fd57cb46cd93832aee0a390f8c";
-
-    if (!khaltiLoadedRef.current) {
-      const script = document.createElement("script");
-      script.src = "https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js";
-      script.async = true;
-
-      script.onload = () => {
-        khaltiLoadedRef.current = true;
-        openKhaltiCheckout(bookingData, khaltiPublicKey);
-      };
-      script.onerror = () => {
-        setError("Failed to load Khalti payment SDK. Please try again.");
-        setSubmitting(false);
-      };
-      document.body.appendChild(script);
-    } else {
-      openKhaltiCheckout(bookingData, khaltiPublicKey);
-    }
-  };
-
-  const openKhaltiCheckout = (bookingData: any, publicKey: string) => {
-    const config = {
-      publicKey,
-      productIdentity: `booking_${venue?._id}_${Date.now()}`,
-      productName: `${venue?.name} - Booking`,
-      productUrl: window.location.href,
-      paymentPreference: ["KHALTI", "EBANKING", "MOBILE_BANKING", "CONNECT_IPS", "SCT"],
-      eventHandler: {
-        onSuccess: async (payload: any) => {
-          const result = await handleCreateBooking({
-            ...bookingData,
-            paymentMethod: "khalti",
-            paymentId: payload.pidx,
-          });
-          if (!result.success) {
-            setError(result.message || "Payment succeeded but booking failed. Contact support.");
-            return;
+  useEffect(() => {
+    const href = window.location.href;
+    const dataMatch = href.match(/[?&]data=([^&]+)/);
+    if (dataMatch) {
+      try {
+        const raw = dataMatch[1];
+        const decoded = JSON.parse(atob(raw));
+        if (decoded.status === "COMPLETE") {
+          const refId = decoded.transaction_code || decoded.ref_id;
+          const savedData = sessionStorage.getItem("esewaBooking");
+          if (savedData) {
+            const bookingData = JSON.parse(savedData);
+            handleConfirmAfterEsewa(refId, bookingData);
+            sessionStorage.removeItem("esewaBooking");
+          } else {
+            setError("Payment info lost. Please contact support.");
           }
-          setSuccess(true);
-        },
-        onError: (error: any) => {
-          setError(error?.message || "Khalti payment failed. Please try again.");
-        },
-        onClose: () => {
-          setSubmitting(false);
-        },
-      },
-    };
+        } else {
+          setError("Payment was not completed. Please try again.");
+        }
+      } catch (e) {
+        setError("Failed to process payment callback.");
+      }
+    }
+  }, []);
 
-    const checkout = new (window as any).KhaltiCheckout(config);
-    checkout.show({ amount: Math.round(bookingData.totalPrice * 100) });
+  const handleConfirmAfterEsewa = async (refId: string, bookingData: any) => {
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const result = await handleCreateBooking({
+        ...bookingData,
+        paymentMethod: "esewa",
+        paymentId: refId,
+      });
+      if (!result.success) {
+        setError(result.message || "Payment succeeded but booking failed. Contact support.");
+        return;
+      }
+      setSuccess(bookingData);
+    } catch (err: any) {
+      setError(err?.message || "Booking failed after payment. Please contact support.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleConfirm = async () => {
@@ -144,8 +137,31 @@ export default function BookingPage() {
       phone: phone.trim(),
     };
 
-    if (paymentMethod === "khalti") {
-      handleKhaltiPayment(bookingData);
+    if (paymentMethod === "esewa") {
+      sessionStorage.setItem("esewaBooking", JSON.stringify(bookingData));
+
+      const result = await handleInitiateEsewaPayment(bookingData);
+      if (!result.success) {
+        setError(result.message || "Failed to initiate eSewa payment.");
+        setSubmitting(false);
+        sessionStorage.removeItem("esewaBooking");
+        return;
+      }
+
+      const { formData, esewaUrl } = result.data!;
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = esewaUrl;
+      form.style.display = "none";
+      Object.entries(formData).forEach(([key, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      });
+      document.body.appendChild(form);
+      form.submit();
       return;
     }
 
@@ -155,7 +171,7 @@ export default function BookingPage() {
         paymentMethod: "cash",
       });
       if (!result.success) throw new Error(result.message);
-      setSuccess(true);
+      setSuccess(bookingData);
     } catch (err: any) {
       setError(err?.message || "Booking failed. Please try again.");
     } finally {
@@ -171,6 +187,40 @@ export default function BookingPage() {
       default: return "bg-gray-100 text-gray-700";
     }
   };
+
+  if (success) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-black text-white">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center shadow-sm backdrop-blur">
+          <Image src="/bookingdone.png" alt="Booking Confirmed" width={300} height={300} priority className="mx-auto mb-6" />
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
+            <Check className="h-7 w-7 text-green-600" />
+          </div>
+          <h2 className="mt-5 text-2xl font-bold text-white">Booking Confirmed!</h2>
+          <p className="mt-2 text-gray-300">
+            {success.venueName} — {success.date} at {success.timeSlot} ({success.duration} hr{success.duration > 1 ? "s" : ""})
+          </p>
+          <p className="mt-1 text-lg font-bold text-white">
+            Rs {success.totalPrice.toLocaleString()}
+          </p>
+          <div className="mt-8 flex justify-center gap-4">
+            <Link
+              href="/users/venues"
+              className="rounded-xl border border-white/20 px-6 py-3 text-sm font-semibold text-gray-300 transition hover:bg-white/10"
+            >
+              Book Again
+            </Link>
+            <Link
+              href="/users/booking"
+              className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black shadow transition hover:bg-white/90"
+            >
+              View My Bookings
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!venueId) {
     return (
@@ -298,40 +348,6 @@ export default function BookingPage() {
               </Link>
             </>
           )}
-        </div>
-      </div>
-    );
-  }
-
-  if (success) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-black text-white">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center shadow-sm backdrop-blur">
-          <Image src="/bookingdone.png" alt="Booking Confirmed" width={300} height={300} priority className="mx-auto mb-6" />
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
-            <Check className="h-7 w-7 text-green-600" />
-          </div>
-          <h2 className="mt-5 text-2xl font-bold text-white">Booking Confirmed!</h2>
-          <p className="mt-2 text-gray-300">
-            {venue.name} — {date} at {timeSlot} ({duration} hr{duration > 1 ? "s" : ""})
-          </p>
-          <p className="mt-1 text-lg font-bold text-white">
-            Rs {(venue.pricePerHour * duration).toLocaleString()}
-          </p>
-          <div className="mt-8 flex justify-center gap-4">
-            <Link
-              href="/users/venues"
-              className="rounded-xl border border-white/20 px-6 py-3 text-sm font-semibold text-gray-300 transition hover:bg-white/10"
-            >
-              Book Again
-            </Link>
-            <Link
-              href="/users/booking"
-              className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black shadow transition hover:bg-white/90"
-            >
-              View My Bookings
-            </Link>
-          </div>
         </div>
       </div>
     );
@@ -600,20 +616,20 @@ export default function BookingPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod("khalti")}
+                  onClick={() => setPaymentMethod("esewa")}
                   className={`flex w-full items-center gap-2.5 rounded border px-3 py-2 text-left transition ${
-                    paymentMethod === "khalti" ? "border-blue-500 bg-blue-50" : "border-gray-100 hover:border-blue-200"
+                    paymentMethod === "esewa" ? "border-blue-500 bg-blue-50" : "border-gray-100 hover:border-blue-200"
                   }`}
                 >
                   <div className={`flex h-7 w-7 items-center justify-center rounded ${
-                    paymentMethod === "khalti" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"
+                    paymentMethod === "esewa" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"
                   }`}>
                     <Landmark className="h-3.5 w-3.5" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs font-semibold text-gray-900">Khalti Online</p>
+                    <p className="text-xs font-semibold text-gray-900">eSewa Online</p>
                   </div>
-                  {paymentMethod === "khalti" && (
+                  {paymentMethod === "esewa" && (
                     <div className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-white">
                       <Check className="h-2.5 w-2.5" />
                     </div>
