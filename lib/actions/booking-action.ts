@@ -18,6 +18,24 @@ interface CreateBookingData {
   paymentId?: string;
 }
 
+interface InitiateEsewaData {
+  venueId: string;
+  venueName: string;
+  sport: string;
+  city: string;
+  date: string;
+  timeSlot: string;
+  duration: number;
+  totalPrice: number;
+  fullName: string;
+  phone: string;
+}
+
+interface InitiateEsewaResponse {
+  formData: Record<string, string>;
+  esewaUrl: string;
+}
+
 interface Booking {
   _id: string;
   venueId: string;
@@ -48,6 +66,26 @@ export async function handleCreateBooking(data: CreateBookingData) {
     return {
       success: false,
       message: error?.response?.data?.message || "Booking failed",
+    };
+  }
+}
+
+export async function handleInitiateEsewaPayment(data: InitiateEsewaData) {
+  try {
+    const token = await getTokenCookie();
+    if (!token) return { success: false, message: "Not authenticated" };
+
+    const res = await axios.post(
+      `${BASE_URL}/api/v1/bookings/initiate-esewa`,
+      data,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return { success: true, data: res.data.data as InitiateEsewaResponse };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error?.response?.data?.message || "Failed to initiate eSewa payment",
     };
   }
 }
