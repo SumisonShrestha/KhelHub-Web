@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Users, Building2, Calendar, ShieldCheck, Trophy } from "lucide-react";
+import { Users, Building2, Calendar, Trophy, TrendingUp } from "lucide-react";
 import { getVenues } from "@/lib/api/venue";
 import axiosInstance from "@/lib/api/axios-instance";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface Props {
   user: any;
@@ -13,6 +14,7 @@ interface Props {
 
 export default function AdminDashboardClient({ user, token }: Props) {
   const [stats, setStats] = useState({ users: 0, venues: 0, teams: 0, bookings: 0 });
+  const [trend, setTrend] = useState<{ date: string; users: number; venues: number; teams: number; bookings: number }[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -33,6 +35,53 @@ export default function AdminDashboardClient({ user, token }: Props) {
           teams: teamRes.data.meta?.total || 0,
           bookings: bookingRes.data.meta?.total || 0,
         });
+
+        const LIMIT = 10000;
+
+        const [allUsers, allVenues, allTeams, allBookings] = await Promise.all([
+          axiosInstance.get(`/api/v1/admin/users?limit=${LIMIT}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axiosInstance.get(`/api/v1/admin/venues?limit=${LIMIT}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axiosInstance.get(`/api/v1/admin/teams?limit=${LIMIT}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axiosInstance.get(`/api/v1/admin/bookings?limit=${LIMIT}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        const allDates = new Set<string>();
+        const countMap: Record<string, { users: number; venues: number; teams: number; bookings: number }> = {};
+
+        const addDate = (arr: any[], field: string, key: "users" | "venues" | "teams" | "bookings") => {
+          (arr || []).forEach((item: any) => {
+            const raw = item[field] || item.createdAt || "";
+            const d = raw.split("T")[0];
+            if (!d) return;
+            allDates.add(d);
+            if (!countMap[d]) countMap[d] = { users: 0, venues: 0, teams: 0, bookings: 0 };
+            countMap[d][key] = (countMap[d][key] || 0) + 1;
+          });
+        };
+
+        addDate(allUsers.data?.data, "createdAt", "users");
+        addDate(allVenues.data?.data, "createdAt", "venues");
+        addDate(allTeams.data?.data, "createdAt", "teams");
+        addDate(allBookings.data?.data, "date", "bookings");
+
+        const sorted = Array.from(allDates).sort();
+        let cumUsers = 0, cumVenues = 0, cumTeams = 0, cumBookings = 0;
+        const chartData = sorted.map((date) => {
+          cumUsers += countMap[date]?.users || 0;
+          cumVenues += countMap[date]?.venues || 0;
+          cumTeams += countMap[date]?.teams || 0;
+          cumBookings += countMap[date]?.bookings || 0;
+          return { date, users: cumUsers, venues: cumVenues, teams: cumTeams, bookings: cumBookings };
+        });
+        setTrend(chartData);
       } catch {}
     })();
   }, [token]);
@@ -66,29 +115,31 @@ export default function AdminDashboardClient({ user, token }: Props) {
           })}
         </div>
 
-        <div className="mt-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900">Admin Info</h3>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs text-gray-500">Name</p>
-              <p className="font-medium text-gray-900">{user.firstName} {user.lastName}</p>
-            </div>
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs text-gray-500">Email</p>
-              <p className="font-medium text-gray-900">{user.email}</p>
-            </div>
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs text-gray-500">Role</p>
-              <p className="flex items-center gap-1 font-medium text-gray-900">
-                <ShieldCheck className="h-4 w-4 text-blue-600" /> Admin
-              </p>
-            </div>
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs text-gray-500">Username</p>
-              <p className="font-medium text-gray-900">{user.username}</p>
+      <div className="mt-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="mb-4 flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-blue-600" />
+          <h3 className="text-lg font-bold text-gray-900">Platform Growth</h3>
         </div>
+        {trend.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={trend}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+              <Tooltip
+                contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb", fontSize: 12 }}
+                labelStyle={{ fontWeight: 600 }}
+              />
+              <Line type="monotone" dataKey="users" stroke="#3b82f6" strokeWidth={2} name="Users" dot={false} />
+              <Line type="monotone" dataKey="venues" stroke="#10b981" strokeWidth={2} name="Venues" dot={false} />
+              <Line type="monotone" dataKey="teams" stroke="#f59e0b" strokeWidth={2} name="Teams" dot={false} />
+              <Line type="monotone" dataKey="bookings" stroke="#8b5cf6" strokeWidth={2} name="Bookings" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="py-10 text-center text-sm text-gray-400">No data available yet</p>
+        )}
       </div>
-    </div>
     </div>
   );
 }
