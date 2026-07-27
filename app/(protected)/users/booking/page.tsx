@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { SkeletonBookingCard } from "@/app/_components/Skeleton";
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarDays, Clock, MapPin, Star, ArrowLeft, Check, Calendar, MapPinned, X, Banknote, Landmark } from "lucide-react";
+import { CalendarDays, Clock, MapPin, Star, ArrowLeft, Check, Calendar, MapPinned, X, Banknote, Landmark, CalendarCheck } from "lucide-react";
 import { getVenueById, type Venue } from "@/lib/api/venue";
 import { handleCreateBooking, handleGetMyBookings, handleCancelBooking } from "@/lib/actions/booking-action";
 
@@ -494,139 +494,149 @@ export default function BookingPage() {
 
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-3">
-          <div className="w-full max-w-sm rounded-2xl bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-              <h2 className="text-base font-bold text-gray-900">Confirm Booking</h2>
-              <button onClick={() => { setShowConfirmModal(false); setError(null); }} className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
-                <X className="h-4 w-4" />
+          <div className="w-full max-w-sm rounded-md bg-white shadow-xl">
+
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2.5">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded bg-blue-600 text-white">
+                  <CalendarCheck className="h-4 w-4" />
+                </div>
+                <h2 className="text-sm font-bold text-gray-900">Confirm Booking</h2>
+              </div>
+              <button onClick={() => { setShowConfirmModal(false); setError(null); }} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
 
-            <div className="space-y-3 px-4 py-3">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
-                  <MapPinned className="h-4 w-4" />
+            <div className="divide-y divide-gray-100 px-4 py-1.5">
+              <div className="flex items-center gap-2.5 py-2">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-blue-100 text-blue-600">
+                  <MapPinned className="h-3.5 w-3.5" />
                 </div>
-                <div>
-                  <p className="text-[11px] text-gray-500">Venue</p>
-                  <p className="text-sm font-semibold text-gray-900">{venue.name}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100 text-purple-700">
-                  <Calendar className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-[11px] text-gray-500">Date</p>
-                  <p className="text-sm font-semibold text-gray-900">{formatDate(date)}</p>
+                <div className="flex w-full justify-between">
+                  <span className="text-xs text-gray-400">Venue</span>
+                  <span className="text-xs font-semibold text-gray-900">{venue.name}</span>
                 </div>
               </div>
-
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-700">
-                  <Clock className="h-4 w-4" />
+              <div className="flex items-center gap-2.5 py-2">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-purple-100 text-purple-600">
+                  <Calendar className="h-3.5 w-3.5" />
                 </div>
-                <div>
-                  <p className="text-[11px] text-gray-500">Time</p>
-                  <p className="text-sm font-semibold text-gray-900">{timeSlot}</p>
-                </div>
-              </div>
-
-              <div className="rounded-lg bg-gray-50 p-3">
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Amount</span>
-                    <span className="font-semibold text-gray-900">Rs {totalPrice.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Discount</span>
-                    <span className="font-semibold text-red-500">-Rs {DISCOUNT}</span>
-                  </div>
-                  <hr className="border-gray-200" />
-                  <div className="flex justify-between text-base font-bold">
-                    <span>Total</span>
-                    <span className="text-blue-700">Rs {discountTotal.toLocaleString()}</span>
-                  </div>
+                <div className="flex w-full justify-between">
+                  <span className="text-xs text-gray-400">Date</span>
+                  <span className="text-xs font-semibold text-gray-900">{formatDate(date)}</span>
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <div>
-                  <label className="block text-xs font-medium text-gray-700">Full Name</label>
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Your full name"
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+              <div className="flex items-center gap-2.5 py-2">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-orange-100 text-orange-600">
+                  <Clock className="h-3.5 w-3.5" />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-700">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="98XXXXXXXX"
-                    maxLength={10}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <p className="mb-1.5 text-xs font-medium text-gray-700">Payment Method</p>
-                <div className="space-y-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("cash")}
-                    className={`flex w-full items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left transition ${
-                      paymentMethod === "cash" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:border-blue-300"
-                    }`}
-                  >
-                    <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${
-                      paymentMethod === "cash" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"
-                    }`}>
-                      <Banknote className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">Cash After Game</p>
-                      <p className="text-[11px] text-gray-500">Pay in cash after your game</p>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("khalti")}
-                    className={`flex w-full items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left transition ${
-                      paymentMethod === "khalti" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:border-blue-300"
-                    }`}
-                  >
-                    <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${
-                      paymentMethod === "khalti" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"
-                    }`}>
-                      <Landmark className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">Khalti Online</p>
-                      <p className="text-[11px] text-gray-500">Pay using Khalti wallet</p>
-                    </div>
-                  </button>
+                <div className="flex w-full justify-between">
+                  <span className="text-xs text-gray-400">Time</span>
+                  <span className="text-xs font-semibold text-gray-900">{timeSlot}</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 border-t border-gray-100 px-4 py-3">
+            <div className="border-t border-gray-100 px-4 py-2">
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Amount</span>
+                  <span className="font-medium text-gray-900">Rs {totalPrice.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Discount</span>
+                  <span className="font-medium text-red-500">-Rs {DISCOUNT}</span>
+                </div>
+                <hr className="border-gray-100" />
+                <div className="flex justify-between text-sm">
+                  <span className="font-bold text-gray-900">Total</span>
+                  <span className="font-bold text-blue-600">Rs {discountTotal.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 px-4 py-2 space-y-2">
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Full name"
+                className="w-full rounded border border-gray-200 px-3 py-2 text-xs text-gray-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              />
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Phone number"
+                maxLength={10}
+                className="w-full rounded border border-gray-200 px-3 py-2 text-xs text-gray-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              />
+            </div>
+
+            <div className="border-t border-gray-100 px-4 py-2">
+              <p className="mb-1.5 text-xs font-semibold text-gray-700">Pay via</p>
+              <div className="space-y-1.5">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("cash")}
+                  className={`flex w-full items-center gap-2.5 rounded border px-3 py-2 text-left transition ${
+                    paymentMethod === "cash" ? "border-blue-500 bg-blue-50" : "border-gray-100 hover:border-blue-200"
+                  }`}
+                >
+                  <div className={`flex h-7 w-7 items-center justify-center rounded ${
+                    paymentMethod === "cash" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"
+                  }`}>
+                    <Banknote className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-semibold text-gray-900">Cash After Game</p>
+                  </div>
+                  {paymentMethod === "cash" && (
+                    <div className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </div>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("khalti")}
+                  className={`flex w-full items-center gap-2.5 rounded border px-3 py-2 text-left transition ${
+                    paymentMethod === "khalti" ? "border-blue-500 bg-blue-50" : "border-gray-100 hover:border-blue-200"
+                  }`}
+                >
+                  <div className={`flex h-7 w-7 items-center justify-center rounded ${
+                    paymentMethod === "khalti" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-500"
+                  }`}>
+                    <Landmark className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-semibold text-gray-900">Khalti Online</p>
+                  </div>
+                  {paymentMethod === "khalti" && (
+                    <div className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-white">
+                      <Check className="h-2.5 w-2.5" />
+                    </div>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <div className="mx-4 mb-1 rounded bg-red-50 px-2 py-1.5 text-xs text-red-600">{error}</div>
+            )}
+
+            <div className="flex items-center gap-2 border-t border-gray-100 px-4 py-2.5">
               <button
                 onClick={() => { setShowConfirmModal(false); setError(null); }}
-                className="flex-1 rounded-lg border border-gray-300 py-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="flex-1 rounded border border-gray-200 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirm}
                 disabled={submitting || !fullName.trim() || !/^\d{10}$/.test(phone.trim()) || !paymentMethod}
-                className="flex-1 rounded-lg bg-[#121A2A] py-2.5 text-xs font-semibold text-white shadow transition hover:shadow-lg disabled:opacity-50"
+                className="flex-1 rounded bg-blue-600 py-2 text-xs font-semibold text-white shadow transition hover:shadow-md disabled:opacity-50"
               >
                 {submitting ? "Booking..." : `Confirm • Rs ${discountTotal.toLocaleString()}`}
               </button>
