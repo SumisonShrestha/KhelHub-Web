@@ -1,3 +1,6 @@
+KhelHub is a modern sports venue booking platform built to simplify how players discover, book, and manage sports facilities. The platform enables users to reserve courts and grounds, join games, manage bookings, and make secure online payments through an intuitive and responsive interface.
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
