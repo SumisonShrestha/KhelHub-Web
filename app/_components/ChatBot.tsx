@@ -1,21 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { askChatbot } from "@/lib/actions/chat-action";
 
 type Message = { role: "user" | "bot"; text: string };
-
-const BOT_REPLIES: Record<string, string> = {
-  hello: "Hi there! How can I help you today?",
-  hi: "Hey! Need help with booking a venue or finding a team?",
-  booking: "To book a venue, go to the Venues page, pick your favorite court, select a time slot, and confirm your booking!",
-  team: "You can create or join a team from the Teams page. Find players and start playing together!",
-  venue: "Browse all available futsal venues on the Venues page. Filter by city, sport, or price to find your perfect pitch.",
-  payment: "We accept cash and Khalti online payments. Cash is paid after the game at the venue.",
-  cancel: "You can cancel your booking from the My Bookings page under your profile.",
-  contact: "For further help, reach out to the venue owner directly via the phone number listed on the venue detail page.",
-  default: "I'm here to help! Try asking about: booking, teams, venues, payment, or cancellation.",
-};
 
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
@@ -23,27 +12,24 @@ export default function ChatBot() {
     { role: "bot", text: "Hi! Ask me anything about KhelHub." },
   ]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const text = input.trim();
-    if (!text) return;
+    if (!text || loading) return;
     setMessages((prev) => [...prev, { role: "user", text }]);
     setInput("");
+    setLoading(true);
 
-    const lower = text.toLowerCase();
-    let reply = BOT_REPLIES.default;
-    for (const [key, val] of Object.entries(BOT_REPLIES)) {
-      if (lower.includes(key)) { reply = val; break; }
-    }
+    const reply = await askChatbot([...messages.map((m) => ({ role: m.role as "user" | "assistant", content: m.text })), { role: "user", content: text }]);
 
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { role: "bot", text: reply }]);
-    }, 400);
+    setMessages((prev) => [...prev, { role: "bot", text: reply }]);
+    setLoading(false);
   };
 
   return (
@@ -80,6 +66,13 @@ export default function ChatBot() {
                 </div>
               </div>
             ))}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="rounded-xl bg-gray-100 px-3 py-2 text-sm text-gray-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </div>
+              </div>
+            )}
             <div ref={bottomRef} />
           </div>
 
@@ -88,13 +81,13 @@ export default function ChatBot() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
+              onKeyDown={(e) => { if (e.key === "Enter" && !loading) handleSend(); }}
               placeholder="Ask anything..."
               className="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               onClick={handleSend}
-              disabled={!input.trim()}
+              disabled={!input.trim() || loading}
               className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#121A2A] text-white transition hover:bg-gray-800 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
