@@ -52,6 +52,22 @@ export async function handleMarkAsRead(notificationId: string) {
   }
 }
 
+export async function handleDeleteNotification(notificationId: string) {
+  try {
+    const token = await getTokenCookie();
+    if (!token) return { success: false, message: "Not authenticated" };
+
+    await axios.delete(
+      `${BASE_URL}/api/v1/notifications/${notificationId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, message: error?.response?.data?.message || "Failed to delete notification" };
+  }
+}
+
 export async function handleMarkAllAsRead() {
   try {
     const token = await getTokenCookie();
