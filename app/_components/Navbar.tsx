@@ -4,10 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X, User, UserCircle, Calendar, LogOut, ChevronDown, Building2, Bell, CheckCheck } from "lucide-react";
+import { Menu, X, User, UserCircle, Calendar, LogOut, ChevronDown, Building2, Bell, CheckCheck, Trash2 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { handleLogout } from "@/lib/actions/auth-action";
-import { handleGetNotifications, handleGetUnreadCount, handleMarkAsRead, handleMarkAllAsRead } from "@/lib/actions/notification-action";
+import { handleGetNotifications, handleGetUnreadCount, handleMarkAsRead, handleMarkAllAsRead, handleDeleteNotification } from "@/lib/actions/notification-action";
 
 interface Notification {
   _id: string;
@@ -93,6 +93,12 @@ export default function Navbar() {
     await handleMarkAllAsRead();
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     setUnreadCount(0);
+  };
+
+  const clearNotif = async (id: string, wasUnread: boolean) => {
+    await handleDeleteNotification(id);
+    setNotifications((prev) => prev.filter((n) => n._id !== id));
+    if (wasUnread) setUnreadCount((prev) => Math.max(0, prev - 1));
   };
 
   if (pathname === "/" || pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password" || pathname.startsWith("/admin") || pathname.startsWith("/owner") || pathname.startsWith("/users/venues/create")) return null;
@@ -196,7 +202,7 @@ export default function Navbar() {
                         {notifications.map((n) => (
                           <div
                             key={n._id}
-                            className={`flex items-start gap-3 px-4 py-3 transition hover:bg-white/5 ${!n.read ? "bg-white/5" : ""}`}
+                            className={`group flex items-start gap-3 px-4 py-3 transition hover:bg-white/5 ${!n.read ? "bg-white/5" : ""}`}
                             onClick={() => !n.read && markRead(n._id)}
                           >
                             <div className={`mt-1 h-2 w-2 flex-shrink-0 rounded-full ${n.read ? "bg-transparent" : "bg-blue-500"}`} />
@@ -208,6 +214,13 @@ export default function Navbar() {
                                 {new Date(n.createdAt).toLocaleDateString()}
                               </p>
                             </div>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); clearNotif(n._id, !n.read); }}
+                              className="shrink-0 rounded p-1 text-white/30 opacity-0 transition hover:bg-white/10 hover:text-red-400 group-hover:opacity-100"
+                              title="Clear"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
                           </div>
                         ))}
                       </div>
