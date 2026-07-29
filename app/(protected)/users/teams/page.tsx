@@ -26,6 +26,7 @@ export default function TeamsPage() {
   const [cancelTarget, setCancelTarget] = useState<Team | null>(null);
   const [cancelling, setCancelling] = useState<Set<string>>(new Set());
   const [leaving, setLeaving] = useState<Set<string>>(new Set());
+  const [cancelRequestTarget, setCancelRequestTarget] = useState<{ requestId: string; teamId: string; teamName: string } | null>(null);
 
   const loadTeams = useCallback(async () => {
     try {
@@ -87,12 +88,14 @@ export default function TeamsPage() {
     setLeaving((prev) => { const next = new Set(prev); next.delete(teamId); return next; });
   };
 
-  const handleCancelRequestAction = async (requestId: string, teamId: string) => {
-    if (!confirm("Are you sure you want to cancel this join request?")) return;
+  const handleCancelRequestConfirm = async () => {
+    if (!cancelRequestTarget) return;
+    const { requestId, teamId } = cancelRequestTarget;
     setCancellingReq((prev) => new Set(prev).add(requestId));
     await handleCancelJoinRequest(requestId);
     setRequestedTeams((prev) => { const next = new Map(prev); next.delete(teamId); return next; });
     setCancellingReq((prev) => { const next = new Set(prev); next.delete(requestId); return next; });
+    setCancelRequestTarget(null);
   };
 
   const handleCancelTeam = async (teamId: string) => {
@@ -281,7 +284,7 @@ export default function TeamsPage() {
                           </button>
                         ) : requestedTeams.has(team._id) ? (
                           <button
-                            onClick={() => handleCancelRequestAction(requestedTeams.get(team._id)!, team._id)}
+                            onClick={() => setCancelRequestTarget({ requestId: requestedTeams.get(team._id)!, teamId: team._id, teamName: team.name })}
                             disabled={cancellingReq.has(requestedTeams.get(team._id)!)}
                             className="flex items-center gap-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:opacity-50"
                           >
@@ -325,6 +328,32 @@ export default function TeamsPage() {
                 className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
               >
                 {cancelling.has(cancelTarget._id) ? "Cancelling..." : "Yes, Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {cancelRequestTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-gray-900">Cancel Join Request?</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              Are you sure you want to cancel your request to join <strong>{cancelRequestTarget.teamName}</strong>?
+            </p>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setCancelRequestTarget(null)}
+                className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                No
+              </button>
+              <button
+                onClick={handleCancelRequestConfirm}
+                disabled={cancellingReq.has(cancelRequestTarget.requestId)}
+                className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+              >
+                {cancellingReq.has(cancelRequestTarget.requestId) ? "Cancelling..." : "Yes, Cancel"}
               </button>
             </div>
           </div>
