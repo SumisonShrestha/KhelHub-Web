@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { Search, Trophy, RefreshCw, Trash2, Loader2, AlertCircle, Users } from "lucide-react";
+import { Search, Trophy, RefreshCw, Trash2, Loader2, AlertCircle, Users, AlertTriangle, X } from "lucide-react";
 import { Team } from "@/lib/api/team";
 import { PaginationMeta } from "@/lib/api/admin";
 import {
@@ -18,6 +18,8 @@ export default function AdminTeamsClient() {
     const [page, setPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<Team | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         const t = setTimeout(() => {
@@ -42,9 +44,12 @@ export default function AdminTeamsClient() {
 
     useEffect(() => { fetchTeams(); }, [fetchTeams]);
 
-    const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this team?")) return;
-        const result = await handleAdminDeleteTeam(id);
+    const handleDeleteConfirm = async () => {
+        if (!deleteTarget) return;
+        setIsDeleting(true);
+        const result = await handleAdminDeleteTeam(deleteTarget._id);
+        setIsDeleting(false);
+        setDeleteTarget(null);
         if (result.success) {
             if (teams.length === 1 && page > 1) setPage(page - 1);
             else fetchTeams();
@@ -54,6 +59,7 @@ export default function AdminTeamsClient() {
     };
 
     return (
+        <>
         <div className="p-6">
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mb-8 flex items-center gap-3">
@@ -142,7 +148,7 @@ export default function AdminTeamsClient() {
                                             <td className="px-4 py-3.5">
                                                 <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <button
-                                                        onClick={() => handleDelete(team._id)}
+                                                        onClick={() => setDeleteTarget(team)}
                                                         className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors"
                                                         title="Delete team"
                                                     >
@@ -179,5 +185,51 @@ export default function AdminTeamsClient() {
                 </div>
             </div>
         </div>
+
+            {deleteTarget && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl">
+                        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-100">
+                                    <AlertTriangle size={16} className="text-red-600" />
+                                </div>
+                                <h2 className="text-lg font-semibold text-gray-900">Delete Team</h2>
+                            </div>
+                            <button onClick={() => setDeleteTarget(null)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <div className="px-6 py-5">
+                            <p className="text-sm text-gray-600">
+                                You&apos;re about to permanently delete{" "}
+                                <span className="font-semibold text-gray-900">{deleteTarget.name}</span>
+                                {" "}({deleteTarget.sport}). This action cannot be undone.
+                            </p>
+                        </div>
+
+                        <div className="flex gap-3 border-t border-gray-100 px-6 py-4">
+                            <button
+                                type="button"
+                                onClick={() => setDeleteTarget(null)}
+                                className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleDeleteConfirm}
+                                disabled={isDeleting}
+                                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 py-2.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
+                            >
+                                {isDeleting && <Loader2 size={14} className="animate-spin" />}
+                                Delete Team
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
