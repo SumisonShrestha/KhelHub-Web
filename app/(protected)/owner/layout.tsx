@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getTokenCookie } from "@/lib/cookies";
-import { handleWhoami } from "@/lib/actions/auth-action";
 import OwnerSidebar from "./_components/OwnerSidebar";
 
 export default async function OwnerLayout({
