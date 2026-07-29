@@ -62,8 +62,6 @@ export default function BookingPage() {
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  const DISCOUNT = 50;
-
   const openConfirmModal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!venue || !date || !timeSlot) return;
@@ -361,7 +359,6 @@ export default function BookingPage() {
   };
 
   const totalPrice = venue ? venue.pricePerHour * duration : 0;
-  const discountTotal = Math.max(totalPrice - DISCOUNT, 0);
 
   return (
     <div className={`min-h-screen ${showConfirmModal ? "bg-black" : "bg-gray-50"}`}>
@@ -445,17 +442,8 @@ export default function BookingPage() {
 
               <div className="mt-4 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Amount</span>
-                  <span className="font-medium text-gray-900">Rs {totalPrice.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Discount</span>
-                  <span className="font-medium text-red-500">-Rs {DISCOUNT}</span>
-                </div>
-                <hr className="border-gray-200" />
-                <div className="flex justify-between">
                   <span className="font-bold text-gray-900">Total</span>
-                  <span className="font-bold text-blue-600">Rs {discountTotal.toLocaleString()}</span>
+                  <span className="font-bold text-blue-600">Rs {totalPrice.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -541,7 +529,7 @@ export default function BookingPage() {
                   disabled={submitting || !fullName.trim() || !/^\d{10}$/.test(phone.trim()) || !paymentMethod}
                   className="flex-1 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white shadow transition hover:shadow-md disabled:opacity-50"
                 >
-                  {submitting ? "Booking..." : `Confirm • Rs ${discountTotal.toLocaleString()}`}
+                  {submitting ? "Booking..." : `Confirm • Rs ${totalPrice.toLocaleString()}`}
                 </button>
               </div>
             </div>

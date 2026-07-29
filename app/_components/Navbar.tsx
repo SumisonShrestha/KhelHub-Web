@@ -101,7 +101,7 @@ export default function Navbar() {
     if (wasUnread) setUnreadCount((prev) => Math.max(0, prev - 1));
   };
 
-  if (pathname === "/" || pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password" || pathname.startsWith("/admin") || pathname.startsWith("/owner") || pathname.startsWith("/users/venues/create")) return null;
+  if (pathname === "/" || pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/reset-password" || pathname.startsWith("/admin") || pathname.startsWith("/owner")) return null;
 
   const navLinks = [
     { href: "/users/dashboard", label: "Home" },

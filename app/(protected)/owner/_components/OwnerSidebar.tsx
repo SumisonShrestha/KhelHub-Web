@@ -27,6 +27,8 @@ export default function OwnerSidebar() {
   const [loggingOut, setLoggingOut] = useState(false);
   const activeHref = getActiveHref(pathname, searchParams);
 
+  if (pathname.includes("/owner/venues/create")) return null;
+
   return (
     <aside className="flex w-64 shrink-0 flex-col bg-[#121A2A] text-white">
       <div className="border-b border-white/10 p-6">

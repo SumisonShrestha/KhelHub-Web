@@ -12,6 +12,12 @@
 
 # testing
 /coverage
+/test-results.json
+/test-results/
+
+# AI agent files
+AGENTS.md
+CLAUDE.md
 
 # next.js
 /.next/

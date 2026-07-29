@@ -33,7 +33,6 @@ export default function CreateVenuePage() {
     standardPrice: "",
     weekendPrice: "",
     nightPrice: "",
-    discount: "",
     openingTime: "6am",
     closingTime: "10pm",
     facilities: [] as string[],
@@ -80,7 +79,6 @@ export default function CreateVenuePage() {
       fd.append("email", form.email);
       if (form.weekendPrice) fd.append("weekendPrice", form.weekendPrice);
       if (form.nightPrice) fd.append("nightPrice", form.nightPrice);
-      if (form.discount) fd.append("discount", form.discount);
       fd.append("openingTime", form.openingTime);
       fd.append("closingTime", form.closingTime);
       form.facilities.forEach((f) => fd.append("amenities", f));
@@ -284,15 +282,6 @@ export default function CreateVenuePage() {
                 </div>
 
               </div>
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700">Offer a discount or promotion</label>
-                <input
-                  type="text"
-                  value={form.discount}
-                  onChange={(e) => update("discount", e.target.value)}
-                  placeholder="e.g. 10% off on first booking"
-                  className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:ring-2 focus:ring-blue-500"
-                />
               </div>
             </div>
 
@@ -361,9 +350,8 @@ export default function CreateVenuePage() {
             >
               {submitting ? "Submitting..." : "Submit Venue"}
             </button>
-          </div>
-        </div>
-      </div>
+              </div>
+            </div>
     </div>
   );
 }
